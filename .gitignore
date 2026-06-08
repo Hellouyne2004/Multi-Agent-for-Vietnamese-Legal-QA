@@ -1,0 +1,75 @@
+# === Secrets ===
+.env
+
+# === Python ===
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyo
+.Python
+venv/
+.venv/
+env/
+*.egg-info/
+dist/
+build/
+.eggs/
+
+# === IDE ===
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# === Data (dữ liệu thô và processed) ===
+data/raw/
+
+# Giữ lại sample data:
+!data/sample/
+
+# === Qdrant storage ===
+qdrant_data/
+
+# === Logs ===
+logs/
+*.log
+
+# === OS ===
+.DS_Store
+Thumbs.db
+
+# === Jupyter ===
+.ipynb_checkpoints/
+*.ipynb
+
+# === Temporary & Scratch ===
+scratch/
+langgraph_rag_agent_example.ipynb
+OVERVIEW.md
+SKILLS.md
+WORKFLOW.md
+RAG_IMPROVEMENT_PLAN.md
+
+# === Frontend ===
+frontend/node_modules/
+frontend/dist/
+frontend/.env.local
+
+# === Unnecessary Tests & Debug Scripts ===
+scripts/test_*.py
+scripts/debug_*.py
+scripts/smoke_*.py
+scripts/verify_*.py
+scripts/explore_*.py
+scripts/test_keys.py
+scripts/sync_*.py
+
+data/processed/chunks.jsonl
+data/processed/chunking_report.json
+data/processed/metadata/
+data/processed/text/
+data/processed/pdf_ocr/
+eval_reports/latest.json
+Report_*.docx
+*.docx
+docs/report_assets/
