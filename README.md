@@ -41,6 +41,8 @@ The generated Markdown report is saved to `eval_reports/latest.md`.
 
 ## Architecture
 
+![System architecture](docs/assets/system-architecture.png)
+
 ```text
 User question
   -> Router Agent
