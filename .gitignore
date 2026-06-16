@@ -70,6 +70,7 @@ data/processed/metadata/
 data/processed/text/
 data/processed/pdf_ocr/
 eval_reports/latest.json
+eval_reports/*predictions*.jsonl
 Report_*.docx
 *.docx
 docs/report_assets/

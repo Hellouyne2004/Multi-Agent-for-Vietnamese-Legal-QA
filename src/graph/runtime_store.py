@@ -175,6 +175,18 @@ def get_citations(state: dict[str, Any]) -> list[dict[str, Any]]:
     return citations or state.get("citations") or []
 
 
+def get_agent_events(state_or_trace_id: dict[str, Any] | str) -> list[dict[str, Any]]:
+    """Return in-memory audit events for a graph run."""
+    if isinstance(state_or_trace_id, str):
+        trace_id = state_or_trace_id
+    else:
+        trace_id = state_or_trace_id.get("trace_id") or state_or_trace_id.get("request_id")
+    if not trace_id:
+        return []
+    context = _ensure_context(trace_id)
+    return list(context.get("events", []))
+
+
 def record_agent_event(
     *,
     trace_id: str,

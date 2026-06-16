@@ -17,27 +17,18 @@ Vietnamese legal question-answering system built with **LangGraph multi-agent RA
 
 ## Evaluation Snapshot
 
-The evaluation files are lightweight and can be inspected without private API keys or a running Qdrant instance.
+The evaluation suite is designed to measure the system by layer instead of treating the multi-agent graph as a black box. Under Gemini free-tier limits, the current public results focus on a **100-case retrieval benchmark** and a smaller **20-case end-to-end benchmark** for quota-aware validation.
 
 | Area | Metric | Current snapshot |
 | --- | ---: | ---: |
 | Corpus | Registry documents | 4 |
 | Corpus | Chunks | 527 |
-| Retrieval | Doc Hit@5 | 100.00% |
-| Retrieval | Article Hit@5 | 93.75% |
-| Retrieval | Clause Hit@5 | 84.38% |
-| Retrieval | MRR | 90.63% |
-| Generation | Evaluated cases | 5 |
-| Generation | Fact Coverage | 70.00% |
-| Citation | Display citation valid | 100.00% |
+| Corpus | Missing metadata | 0 |
+| Benchmark | Retrieval cases | 100 |
+| Benchmark | E2E subset cases | 20 |
+| Retrieval report | Metrics | Doc Hit@5, Article Hit@5, Clause Hit@5, MRR, latency |
 
-Regenerate the public report:
-
-```bash
-python scripts/evaluate_legal_qa.py
-```
-
-The generated Markdown report is saved to `eval_reports/latest.md`.
+The benchmark covers the current 4-document indexed corpus with direct legal lookup, procedural questions, table lookup, out-of-scope routing, unsafe requests, and hallucination traps. Failure analysis is used to separate corpus issues, retrieval misses, citation problems, and unsupported-answer behavior.
 
 ## Architecture
 
@@ -78,7 +69,7 @@ User question
 api/                         FastAPI app and QA router
 data/evaluation/             Public benchmark seed for repeatable evaluation
 data/processed/              Document registry and ingestion quality summary
-eval_reports/                Baseline metrics and latest Markdown report
+eval_reports/                Generated evaluation reports and failure analysis
 frontend/                    React/Vite UI
 scripts/                     Indexing, evaluation, observability, and utility scripts
 src/                         Agents, graph state, data pipeline, models, utilities
@@ -155,40 +146,15 @@ npm run dev
 
 ## Evaluation
 
-Generate the local evaluation report:
+The evaluator is organized around three quality layers:
 
-```bash
-python scripts/evaluate_legal_qa.py
-```
+- **Corpus quality**: metadata completeness, chunk length distribution, legal/table structure coverage, OCR quality summary.
+- **Component quality**: router intent accuracy, retrieval Doc/Article/Clause Hit@k, MRR, grader decision accuracy, citation validity, deterministic hallucination checks.
+- **End-to-end quality**: fact coverage, forbidden fact rate, grounded answer rate, refusal accuracy, unsupported numeric claims, retry count, web fallback usage, latency, and error rate.
 
-Score a real retrieval/generation run when predictions are available:
+The current retrieval report has full prediction coverage on 100 benchmark cases and records latency, quality gates, and failure categories. Reports also track `prediction_coverage`, so partial E2E runs are not mistaken for full benchmark failures.
 
-```bash
-python scripts/evaluate_legal_qa.py --predictions eval_reports/my_run_predictions.jsonl
-```
-
-Expected prediction schema:
-
-```json
-{
-  "id": "labor_working_time_001",
-  "retrieved_documents": [
-    {
-      "content": "...",
-      "metadata": {
-        "doc_id": "45_2019_qh14",
-        "article_number": 105,
-        "clause_number": 1,
-        "level": "clause"
-      }
-    }
-  ],
-  "answer": "... [S1]",
-  "citations": [{"source": "[S1]", "url": "https://..."}],
-  "retrieval_ms": 42,
-  "answer_ms": 2500
-}
-```
+Generated reports are written to `eval_reports/retrieval_100.md` and `eval_reports/failure_analysis.md` after running the retrieval evaluator.
 
 ## Tests
 
@@ -200,6 +166,8 @@ The smoke tests focus on deterministic contracts:
 - FastAPI root response shape.
 - Rule-based hallucination/citation checks.
 - Retrieval filter parsing for article/clause queries.
+- Offline evaluation metrics for retrieval, answer quality, refusal accuracy, and quality gates.
+- Quota-friendly component evaluation with `--component retrieval`, `--component e2e`, and `--only-predicted`.
 
 ## Key Rotation Observability
 
@@ -221,7 +189,8 @@ Example safe log shape:
 
 ## Limitations
 
-- Retrieval metrics are from an offline evaluation snapshot.
-- The public benchmark seed is in `data/evaluation/legal_qa_eval_30.jsonl`.
-- Generation evaluation currently covers a small sample because it requires LLM calls.
-- RAGAS and full graph evaluation are not part of the default local test suite.
+- The default report remains offline and deterministic; full graph evaluation requires Qdrant plus configured LLM credentials.
+- Gemini free-tier quotas make a full 100-case E2E run impractical; use 100-case retrieval metrics and the 20-case E2E subset for CV-ready reporting.
+- LLM-as-judge is optional and should be used as a secondary signal, not as the only source of truth.
+- Ablation comparison is scored from prediction files; missing variant files are reported as missing rather than filled with synthetic scores.
+- The CV-ready evaluation bullet: "Designed and implemented a component-wise evaluation framework for a Vietnamese Legal Multi-Agent RAG system, covering corpus quality, 100-case hybrid retrieval benchmarking, quota-aware E2E evaluation, prediction coverage tracking, citation validation, hallucination checks, latency metrics, ablation studies, and failure analysis."
