@@ -1,6 +1,5 @@
 # Legal QA Evaluation Report
 
-- Created at: 2026-06-16T19:38:39
 - Dataset: `data\evaluation\legal_qa_eval_100.jsonl` (100 cases)
 - Mode: scored_retrieval_predictions
 - Predictions: `eval_reports\retrieval_predictions.jsonl`
