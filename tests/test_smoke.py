@@ -93,6 +93,7 @@ def test_offline_evaluator_scores_retrieval_and_answer():
         "case_1": {
             "retrieved_documents": [
                 {
+                    "content": "Thoi gio lam viec binh thuong khong qua 08 gio trong 01 ngay.",
                     "metadata": {
                         "doc_id": "45_2019_qh14",
                         "article_number": 105,
@@ -111,6 +112,9 @@ def test_offline_evaluator_scores_retrieval_and_answer():
 
     assert retrieval["doc_hit_at_k"] == 1.0
     assert retrieval["article_hit_at_k"] == 1.0
+    assert retrieval["context_fact_coverage_at_k"] == 1.0
+    assert retrieval["full_context_fact_case_rate_at_k"] == 1.0
+    assert retrieval["forbidden_fact_in_context_rate_at_k"] == 0.0
     assert answer["fact_coverage"] == 1.0
     assert answer["display_citation_valid"] == 1.0
 
@@ -227,7 +231,15 @@ def test_offline_evaluator_scores_router_refusal_and_quality_gates():
     report = {
         "corpus": {"missing_metadata_total": 0, "chunk_chars_avg": 843.4},
         "router_summary": router,
-        "retrieval_summary": {"doc_hit_at_k": 1.0, "article_hit_at_k": 0.9, "clause_hit_at_k": 0.8, "mrr": 0.9},
+        "retrieval_summary": {
+            "doc_hit_at_k": 1.0,
+            "context_fact_coverage_at_k": 1.0,
+            "full_context_fact_case_rate_at_k": 1.0,
+            "forbidden_fact_in_context_rate_at_k": 0.0,
+            "article_hit_at_k": 0.9,
+            "clause_hit_at_k": 0.8,
+            "mrr": 0.9,
+        },
         "answer_summary": answer,
     }
     gates = evaluator.build_quality_gates(report)
@@ -236,6 +248,7 @@ def test_offline_evaluator_scores_router_refusal_and_quality_gates():
     assert answer["refusal_accuracy"] == 1.0
     assert answer["grounded_answer_rate"] == 1.0
     assert any(gate["gate"] == "router_intent_accuracy" and gate["status"] == "PASS" for gate in gates)
+    assert any(gate["gate"] == "retrieval_context_fact_coverage_at_k" and gate["status"] == "PASS" for gate in gates)
 
 
 def test_offline_evaluator_prediction_coverage_only_predicted():

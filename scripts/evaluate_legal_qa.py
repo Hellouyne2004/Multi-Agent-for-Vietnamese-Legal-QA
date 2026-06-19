@@ -42,8 +42,9 @@ QUALITY_GATES = {
     "router_intent_accuracy": ("gte", 0.90),
     "router_refusal_accuracy": ("gte", 0.90),
     "retrieval_doc_hit_at_k": ("gte", 0.95),
-    "retrieval_article_hit_at_k": ("gte", 0.85),
-    "retrieval_clause_hit_at_k": ("gte", 0.75),
+    "retrieval_context_fact_coverage_at_k": ("gte", 0.80),
+    "retrieval_full_context_fact_case_rate_at_k": ("gte", 0.70),
+    "retrieval_forbidden_fact_in_context_rate_at_k": ("lte", 0.05),
     "retrieval_mrr": ("gte", 0.80),
     "generation_fact_coverage": ("gte", 0.75),
     "generation_forbidden_fact_rate": ("lte", 0.05),
@@ -166,6 +167,23 @@ def hit_for_field(expected: dict[str, Any], docs: list[dict[str, Any]], field: s
         ):
             return True
     return False
+
+
+def retrieved_context_text(docs: list[dict[str, Any]]) -> str:
+    parts: list[str] = []
+    for doc in docs:
+        if not isinstance(doc, dict):
+            continue
+        parts.append(str(doc.get("content", "")))
+        metadata = get_metadata(doc)
+        parts.append(" ".join(str(value) for value in metadata.values()))
+    return "\n".join(parts)
+
+
+def retrieval_evidence_expected(case: dict[str, Any]) -> bool:
+    """Return True when retrieval should supply corpus facts for this case."""
+    expected = case.get("expected", {})
+    return bool(expected.get("doc_id") and expected.get("expected_facts") and not expected_refusal(case))
 
 
 def citation_ids(text: str) -> set[str]:
@@ -340,6 +358,38 @@ def score_retrieval(cases: list[dict[str, Any]], predictions: dict[str, dict[str
         clause_hit = hit_for_field(expected, docs, "clause_number")
         point_hit = hit_for_field(expected, docs, "point_label")
         level_hit = hit_for_field(expected, docs, "level")
+        context_fact_coverage = None
+        full_context_fact_coverage = None
+        forbidden_fact_in_context_rate = None
+        covered_fact_count = 0
+        expected_fact_count = 0
+        forbidden_context_fact_count = 0
+        forbidden_fact_count = 0
+
+        if retrieval_evidence_expected(case):
+            context_text = normalize_text(retrieved_context_text(docs))
+            expected_facts = [normalize_text(item) for item in expected.get("expected_facts", []) if item]
+            forbidden_facts = [normalize_text(item) for item in expected.get("forbidden_facts", []) if item]
+            covered_fact_count = sum(1 for fact in expected_facts if fact and fact in context_text)
+            expected_fact_count = len(expected_facts)
+            forbidden_context_fact_count = sum(1 for fact in forbidden_facts if fact and fact in context_text)
+            forbidden_fact_count = len(forbidden_facts)
+            context_fact_coverage = (
+                covered_fact_count / expected_fact_count
+                if expected_fact_count
+                else None
+            )
+            full_context_fact_coverage = (
+                covered_fact_count == expected_fact_count
+                if expected_fact_count
+                else None
+            )
+            forbidden_fact_in_context_rate = (
+                forbidden_context_fact_count / forbidden_fact_count
+                if forbidden_fact_count
+                else None
+            )
+
         failure_reasons: list[str] = []
         if doc_hit is False:
             failure_reasons.append("wrong_doc")
@@ -349,6 +399,10 @@ def score_retrieval(cases: list[dict[str, Any]], predictions: dict[str, dict[str
             failure_reasons.append("wrong_clause")
         if point_hit is False:
             failure_reasons.append("wrong_point")
+        if context_fact_coverage is not None and context_fact_coverage < 1.0:
+            failure_reasons.append("missing_context_fact")
+        if forbidden_context_fact_count:
+            failure_reasons.append("forbidden_context_fact")
         scored.append(
             {
                 "id": case["id"],
@@ -357,12 +411,24 @@ def score_retrieval(cases: list[dict[str, Any]], predictions: dict[str, dict[str
                 "clause_hit": clause_hit,
                 "point_hit": point_hit,
                 "level_hit": level_hit,
+                "context_fact_coverage": context_fact_coverage,
+                "full_context_fact_coverage": full_context_fact_coverage,
+                "forbidden_fact_in_context_rate": forbidden_fact_in_context_rate,
+                "covered_fact_count": covered_fact_count,
+                "expected_fact_count": expected_fact_count,
+                "forbidden_context_fact_count": forbidden_context_fact_count,
+                "forbidden_fact_count": forbidden_fact_count,
                 "mrr": 1 / rank if rank else None,
                 "retrieval_ms": prediction.get("retrieval_ms"),
                 "failure_reasons": failure_reasons,
             }
         )
     latencies = [row["retrieval_ms"] for row in scored if isinstance(row.get("retrieval_ms"), (int, float))]
+    evidence_rows = [row for row in scored if row.get("context_fact_coverage") is not None]
+    expected_fact_total = sum(row["expected_fact_count"] for row in evidence_rows)
+    covered_fact_total = sum(row["covered_fact_count"] for row in evidence_rows)
+    forbidden_fact_total = sum(row["forbidden_fact_count"] for row in evidence_rows)
+    forbidden_context_fact_total = sum(row["forbidden_context_fact_count"] for row in evidence_rows)
     return {
         "cases": len(cases),
         "top_k": top_k,
@@ -371,6 +437,22 @@ def score_retrieval(cases: list[dict[str, Any]], predictions: dict[str, dict[str
         "clause_hit_at_k": bool_mean(scored, "clause_hit"),
         "point_hit_at_k": bool_mean(scored, "point_hit"),
         "level_hit_at_k": bool_mean(scored, "level_hit"),
+        "evidence_cases": len(evidence_rows),
+        "context_fact_coverage_at_k": (
+            covered_fact_total / expected_fact_total
+            if expected_fact_total
+            else None
+        ),
+        "full_context_fact_case_rate_at_k": bool_mean(evidence_rows, "full_context_fact_coverage"),
+        "forbidden_fact_in_context_rate_at_k": (
+            forbidden_context_fact_total / forbidden_fact_total
+            if forbidden_fact_total
+            else None
+        ),
+        "covered_fact_count": covered_fact_total,
+        "expected_fact_count": expected_fact_total,
+        "forbidden_context_fact_count": forbidden_context_fact_total,
+        "forbidden_fact_count": forbidden_fact_total,
         "mrr": float_mean(scored, "mrr"),
         "avg_retrieval_ms": float_mean(scored, "retrieval_ms"),
         "p95_retrieval_ms": percentile(latencies, 0.95),
@@ -646,8 +728,9 @@ def build_quality_gates(report: dict[str, Any]) -> list[dict[str, Any]]:
         "router_intent_accuracy": router.get("intent_accuracy"),
         "router_refusal_accuracy": router.get("refusal_accuracy") or answer.get("refusal_accuracy"),
         "retrieval_doc_hit_at_k": retrieval.get("doc_hit_at_k", retrieval.get("doc_hit_at_5")),
-        "retrieval_article_hit_at_k": retrieval.get("article_hit_at_k", retrieval.get("article_hit_at_5")),
-        "retrieval_clause_hit_at_k": retrieval.get("clause_hit_at_k", retrieval.get("clause_hit_at_5")),
+        "retrieval_context_fact_coverage_at_k": retrieval.get("context_fact_coverage_at_k"),
+        "retrieval_full_context_fact_case_rate_at_k": retrieval.get("full_context_fact_case_rate_at_k"),
+        "retrieval_forbidden_fact_in_context_rate_at_k": retrieval.get("forbidden_fact_in_context_rate_at_k"),
         "retrieval_mrr": retrieval.get("mrr"),
         "generation_fact_coverage": answer.get("fact_coverage"),
         "generation_forbidden_fact_rate": answer.get("forbidden_fact_rate"),
@@ -861,6 +944,7 @@ def build_scored_report(
     notes = [
         f"Predictions scored from {predictions_path}.",
         "Deterministic metrics are always reported; LLM-as-judge is opt-in.",
+        "Retrieval gates prioritize context fact coverage; article/clause/point hits are diagnostic metadata metrics.",
     ]
     if only_predicted:
         notes.append("Only cases present in the predictions file were scored; missing dataset cases are reported as coverage, not failures.")
@@ -987,10 +1071,16 @@ def write_report(report: dict[str, Any], out_json: Path, out_md: Path) -> None:
             "| --- | ---: |",
             f"| Cases | {retrieval.get('cases', 'n/a')} |",
             f"| Doc Hit@{top_k} | {fmt_percent(retrieval.get('doc_hit_at_k', retrieval.get('doc_hit_at_5')))} |",
-            f"| Article Hit@{top_k} | {fmt_percent(retrieval.get('article_hit_at_k', retrieval.get('article_hit_at_5')))} |",
-            f"| Clause Hit@{top_k} | {fmt_percent(retrieval.get('clause_hit_at_k', retrieval.get('clause_hit_at_5')))} |",
-            f"| Point Hit@{top_k} | {fmt_percent(retrieval.get('point_hit_at_k', retrieval.get('point_hit_at_5')))} |",
-            f"| Level Hit@{top_k} | {fmt_percent(retrieval.get('level_hit_at_k', retrieval.get('level_hit_at_5')))} |",
+            f"| Evidence Cases | {retrieval.get('evidence_cases', 'n/a')} |",
+            f"| Context Fact Coverage@{top_k} | {fmt_percent(retrieval.get('context_fact_coverage_at_k'))} |",
+            f"| Full Context Fact Case Rate@{top_k} | {fmt_percent(retrieval.get('full_context_fact_case_rate_at_k'))} |",
+            f"| Forbidden Fact In Context Rate@{top_k} | {fmt_percent(retrieval.get('forbidden_fact_in_context_rate_at_k'))} |",
+            f"| Covered Expected Facts@{top_k} | {retrieval.get('covered_fact_count', 'n/a')}/{retrieval.get('expected_fact_count', 'n/a')} |",
+            f"| Forbidden Facts Found@{top_k} | {retrieval.get('forbidden_context_fact_count', 'n/a')}/{retrieval.get('forbidden_fact_count', 'n/a')} |",
+            f"| Article Hit@{top_k} diagnostic | {fmt_percent(retrieval.get('article_hit_at_k', retrieval.get('article_hit_at_5')))} |",
+            f"| Clause Hit@{top_k} diagnostic | {fmt_percent(retrieval.get('clause_hit_at_k', retrieval.get('clause_hit_at_5')))} |",
+            f"| Point Hit@{top_k} diagnostic | {fmt_percent(retrieval.get('point_hit_at_k', retrieval.get('point_hit_at_5')))} |",
+            f"| Level Hit@{top_k} diagnostic | {fmt_percent(retrieval.get('level_hit_at_k', retrieval.get('level_hit_at_5')))} |",
             f"| MRR | {fmt_percent(retrieval.get('mrr'))} |",
             f"| Avg retrieval latency | {fmt_number(retrieval.get('avg_retrieval_ms'))} ms |",
             f"| P95 retrieval latency | {fmt_number(retrieval.get('p95_retrieval_ms'))} ms |",
@@ -1055,13 +1145,27 @@ def write_report(report: dict[str, Any], out_json: Path, out_md: Path) -> None:
     if ablation:
         lines.extend(["## Ablation Summary", ""])
         if ablation.get("runs"):
-            rows = [["Variant", "Cases", "Doc Hit@5", "Article Hit@5", "Clause Hit@5", "Fact Coverage", "Grounded Rate"]]
+            rows = [[
+                "Variant",
+                "Cases",
+                "Doc Hit@5",
+                "Context Fact Coverage@5",
+                "Full Fact Cases@5",
+                "Forbidden Context Facts@5",
+                "Article Hit@5 diag",
+                "Clause Hit@5 diag",
+                "Answer Fact Coverage",
+                "Grounded Rate",
+            ]]
             for run in ablation["runs"]:
                 rows.append(
                     [
                         str(run.get("variant", "n/a")),
                         str(run.get("cases", "n/a")),
                         fmt_percent(run.get("doc_hit_at_5")),
+                        fmt_percent(run.get("context_fact_coverage_at_5")),
+                        fmt_percent(run.get("full_context_fact_case_rate_at_5")),
+                        fmt_percent(run.get("forbidden_fact_in_context_rate_at_5")),
                         fmt_percent(run.get("article_hit_at_5")),
                         fmt_percent(run.get("clause_hit_at_5")),
                         fmt_percent(run.get("fact_coverage")),
@@ -1122,7 +1226,9 @@ def write_failure_analysis(report: dict[str, Any], out_md: Path) -> None:
                 "",
                 "- `wrong_intent`: inspect router prompt and intent labels.",
                 "- `wrong_doc`, `wrong_article`, `wrong_clause`: inspect retrieval filters, chunk metadata, and ranking.",
-                "- `missing_fact`: inspect generator prompt and retrieved context coverage.",
+                "- `missing_context_fact`: inspect corpus extraction, chunking, retrieval ranking, and top-k context coverage.",
+                "- `forbidden_context_fact`: inspect misleading retrieved context before blaming generation.",
+                "- `missing_fact`: inspect generator prompt after confirming retrieved context coverage.",
                 "- `unsupported_claim`: inspect hallucination grader and citation grounding.",
                 "- `refusal_error`: inspect out-of-scope and unsafe request handling.",
                 "- `quota_or_rate_limit`: rerun later with `--skip-existing`; do not treat this as model quality failure.",

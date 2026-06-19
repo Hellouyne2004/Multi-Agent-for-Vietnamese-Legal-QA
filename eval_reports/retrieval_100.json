@@ -1,16 +1,16 @@
 {
-  "created_at": "2026-06-16T19:38:39",
-  "dataset": "data\\evaluation\\legal_qa_eval_100.jsonl",
+  "created_at": "2026-06-19T10:05:18",
+  "dataset": "data/evaluation/legal_qa_eval_100.jsonl",
   "dataset_cases": 100,
   "mode": "scored_retrieval_predictions",
   "component": "retrieval",
-  "predictions": "eval_reports\\retrieval_predictions.jsonl",
+  "predictions": "eval_reports/retrieval_predictions.jsonl",
   "prediction_coverage": {
     "dataset_cases": 100,
     "prediction_rows": 100,
     "predicted_cases": 100,
     "scored_cases": 100,
-    "coverage": 1.0,
+    "coverage": 1,
     "missing_case_count": 0,
     "extra_prediction_count": 0,
     "missing_case_ids_sample": [],
@@ -18,8 +18,9 @@
   },
   "quota_or_rate_limit_predictions": 0,
   "notes": [
-    "Predictions scored from eval_reports\\retrieval_predictions.jsonl.",
+    "Predictions scored from eval_reports/retrieval_predictions.jsonl.",
     "Deterministic metrics are always reported; LLM-as-judge is opt-in.",
+    "Retrieval gates prioritize context fact coverage; article/clause/point hits are diagnostic metadata metrics.",
     "Retrieval component mode skips router, grader, generation, and E2E answer metrics."
   ],
   "corpus": {
@@ -42,7 +43,7 @@
     },
     "missing_metadata_total": 0,
     "chunk_chars_min": 201,
-    "chunk_chars_avg": 843.4,
+    "chunk_chars_avg": 843.4098671726755,
     "chunk_chars_max": 2199,
     "short_chunks": 0,
     "long_chunks": 0
@@ -59,6 +60,14 @@
     "clause_hit_at_k": 0.3333333333333333,
     "point_hit_at_k": null,
     "level_hit_at_k": 0.8791208791208791,
+    "evidence_cases": 90,
+    "context_fact_coverage_at_k": 0.5913978494623656,
+    "full_context_fact_case_rate_at_k": 0.5222222222222223,
+    "forbidden_fact_in_context_rate_at_k": 0.044444444444444446,
+    "covered_fact_count": 110,
+    "expected_fact_count": 186,
+    "forbidden_context_fact_count": 4,
+    "forbidden_fact_count": 90,
     "mrr": 0.9943820224719101,
     "avg_retrieval_ms": 537.39,
     "p95_retrieval_ms": 526.55,
@@ -70,7 +79,14 @@
         "clause_hit": false,
         "point_hit": null,
         "level_hit": false,
-        "mrr": 1.0,
+        "context_fact_coverage": 1,
+        "full_context_fact_coverage": true,
+        "forbidden_fact_in_context_rate": 0,
+        "covered_fact_count": 2,
+        "expected_fact_count": 2,
+        "forbidden_context_fact_count": 0,
+        "forbidden_fact_count": 1,
+        "mrr": 1,
         "retrieval_ms": 9298,
         "failure_reasons": [
           "wrong_clause"
@@ -83,9 +99,18 @@
         "clause_hit": null,
         "point_hit": null,
         "level_hit": true,
-        "mrr": 1.0,
+        "context_fact_coverage": 0,
+        "full_context_fact_coverage": false,
+        "forbidden_fact_in_context_rate": 0,
+        "covered_fact_count": 0,
+        "expected_fact_count": 2,
+        "forbidden_context_fact_count": 0,
+        "forbidden_fact_count": 1,
+        "mrr": 1,
         "retrieval_ms": 428,
-        "failure_reasons": []
+        "failure_reasons": [
+          "missing_context_fact"
+        ]
       },
       {
         "id": "labor_night_work_003",
@@ -94,7 +119,14 @@
         "clause_hit": null,
         "point_hit": null,
         "level_hit": true,
-        "mrr": 1.0,
+        "context_fact_coverage": 1,
+        "full_context_fact_coverage": true,
+        "forbidden_fact_in_context_rate": 0,
+        "covered_fact_count": 1,
+        "expected_fact_count": 1,
+        "forbidden_context_fact_count": 0,
+        "forbidden_fact_count": 1,
+        "mrr": 1,
         "retrieval_ms": 400,
         "failure_reasons": []
       },
@@ -105,7 +137,14 @@
         "clause_hit": null,
         "point_hit": null,
         "level_hit": true,
-        "mrr": 1.0,
+        "context_fact_coverage": 1,
+        "full_context_fact_coverage": true,
+        "forbidden_fact_in_context_rate": 0,
+        "covered_fact_count": 3,
+        "expected_fact_count": 3,
+        "forbidden_context_fact_count": 0,
+        "forbidden_fact_count": 1,
+        "mrr": 1,
         "retrieval_ms": 404,
         "failure_reasons": []
       },
@@ -116,7 +155,14 @@
         "clause_hit": false,
         "point_hit": null,
         "level_hit": false,
-        "mrr": 1.0,
+        "context_fact_coverage": 1,
+        "full_context_fact_coverage": true,
+        "forbidden_fact_in_context_rate": 0,
+        "covered_fact_count": 1,
+        "expected_fact_count": 1,
+        "forbidden_context_fact_count": 0,
+        "forbidden_fact_count": 1,
+        "mrr": 1,
         "retrieval_ms": 442,
         "failure_reasons": [
           "wrong_clause"
@@ -129,7 +175,14 @@
         "clause_hit": null,
         "point_hit": null,
         "level_hit": true,
-        "mrr": 1.0,
+        "context_fact_coverage": 1,
+        "full_context_fact_coverage": true,
+        "forbidden_fact_in_context_rate": 0,
+        "covered_fact_count": 1,
+        "expected_fact_count": 1,
+        "forbidden_context_fact_count": 0,
+        "forbidden_fact_count": 1,
+        "mrr": 1,
         "retrieval_ms": 471,
         "failure_reasons": []
       },
@@ -140,9 +193,18 @@
         "clause_hit": null,
         "point_hit": null,
         "level_hit": true,
-        "mrr": 1.0,
+        "context_fact_coverage": 0.5,
+        "full_context_fact_coverage": false,
+        "forbidden_fact_in_context_rate": 0,
+        "covered_fact_count": 1,
+        "expected_fact_count": 2,
+        "forbidden_context_fact_count": 0,
+        "forbidden_fact_count": 1,
+        "mrr": 1,
         "retrieval_ms": 422,
-        "failure_reasons": []
+        "failure_reasons": [
+          "missing_context_fact"
+        ]
       },
       {
         "id": "labor_contract_types_008",
@@ -151,10 +213,18 @@
         "clause_hit": null,
         "point_hit": null,
         "level_hit": true,
-        "mrr": 1.0,
+        "context_fact_coverage": 0,
+        "full_context_fact_coverage": false,
+        "forbidden_fact_in_context_rate": 0,
+        "covered_fact_count": 0,
+        "expected_fact_count": 2,
+        "forbidden_context_fact_count": 0,
+        "forbidden_fact_count": 1,
+        "mrr": 1,
         "retrieval_ms": 400,
         "failure_reasons": [
-          "wrong_article"
+          "wrong_article",
+          "missing_context_fact"
         ]
       },
       {
@@ -164,10 +234,18 @@
         "clause_hit": null,
         "point_hit": null,
         "level_hit": false,
-        "mrr": 1.0,
+        "context_fact_coverage": 0.5,
+        "full_context_fact_coverage": false,
+        "forbidden_fact_in_context_rate": 0,
+        "covered_fact_count": 1,
+        "expected_fact_count": 2,
+        "forbidden_context_fact_count": 0,
+        "forbidden_fact_count": 1,
+        "mrr": 1,
         "retrieval_ms": 428,
         "failure_reasons": [
-          "wrong_article"
+          "wrong_article",
+          "missing_context_fact"
         ]
       },
       {
@@ -177,9 +255,18 @@
         "clause_hit": null,
         "point_hit": null,
         "level_hit": true,
-        "mrr": 1.0,
+        "context_fact_coverage": 0,
+        "full_context_fact_coverage": false,
+        "forbidden_fact_in_context_rate": 0,
+        "covered_fact_count": 0,
+        "expected_fact_count": 2,
+        "forbidden_context_fact_count": 0,
+        "forbidden_fact_count": 1,
+        "mrr": 1,
         "retrieval_ms": 423,
-        "failure_reasons": []
+        "failure_reasons": [
+          "missing_context_fact"
+        ]
       },
       {
         "id": "labor_salary_payment_011",
@@ -188,9 +275,18 @@
         "clause_hit": null,
         "point_hit": null,
         "level_hit": true,
-        "mrr": 1.0,
+        "context_fact_coverage": 0,
+        "full_context_fact_coverage": false,
+        "forbidden_fact_in_context_rate": 0,
+        "covered_fact_count": 0,
+        "expected_fact_count": 1,
+        "forbidden_context_fact_count": 0,
+        "forbidden_fact_count": 1,
+        "mrr": 1,
         "retrieval_ms": 419,
-        "failure_reasons": []
+        "failure_reasons": [
+          "missing_context_fact"
+        ]
       },
       {
         "id": "labor_minimum_wage_012",
@@ -199,7 +295,14 @@
         "clause_hit": null,
         "point_hit": null,
         "level_hit": true,
-        "mrr": 1.0,
+        "context_fact_coverage": 1,
+        "full_context_fact_coverage": true,
+        "forbidden_fact_in_context_rate": 0,
+        "covered_fact_count": 1,
+        "expected_fact_count": 1,
+        "forbidden_context_fact_count": 0,
+        "forbidden_fact_count": 1,
+        "mrr": 1,
         "retrieval_ms": 421,
         "failure_reasons": []
       },
@@ -210,9 +313,18 @@
         "clause_hit": null,
         "point_hit": null,
         "level_hit": true,
-        "mrr": 1.0,
+        "context_fact_coverage": 0,
+        "full_context_fact_coverage": false,
+        "forbidden_fact_in_context_rate": 0,
+        "covered_fact_count": 0,
+        "expected_fact_count": 1,
+        "forbidden_context_fact_count": 0,
+        "forbidden_fact_count": 1,
+        "mrr": 1,
         "retrieval_ms": 393,
-        "failure_reasons": []
+        "failure_reasons": [
+          "missing_context_fact"
+        ]
       },
       {
         "id": "labor_social_insurance_014",
@@ -221,9 +333,18 @@
         "clause_hit": null,
         "point_hit": null,
         "level_hit": false,
-        "mrr": 1.0,
+        "context_fact_coverage": 0.3333333333333333,
+        "full_context_fact_coverage": false,
+        "forbidden_fact_in_context_rate": 0,
+        "covered_fact_count": 1,
+        "expected_fact_count": 3,
+        "forbidden_context_fact_count": 0,
+        "forbidden_fact_count": 1,
+        "mrr": 1,
         "retrieval_ms": 409,
-        "failure_reasons": []
+        "failure_reasons": [
+          "missing_context_fact"
+        ]
       },
       {
         "id": "labor_strike_definition_015",
@@ -232,10 +353,18 @@
         "clause_hit": null,
         "point_hit": null,
         "level_hit": true,
-        "mrr": 1.0,
+        "context_fact_coverage": 0,
+        "full_context_fact_coverage": false,
+        "forbidden_fact_in_context_rate": 0,
+        "covered_fact_count": 0,
+        "expected_fact_count": 3,
+        "forbidden_context_fact_count": 0,
+        "forbidden_fact_count": 1,
+        "mrr": 1,
         "retrieval_ms": 400,
         "failure_reasons": [
-          "wrong_article"
+          "wrong_article",
+          "missing_context_fact"
         ]
       },
       {
@@ -245,10 +374,18 @@
         "clause_hit": null,
         "point_hit": null,
         "level_hit": true,
-        "mrr": 1.0,
+        "context_fact_coverage": 0.5,
+        "full_context_fact_coverage": false,
+        "forbidden_fact_in_context_rate": 0,
+        "covered_fact_count": 1,
+        "expected_fact_count": 2,
+        "forbidden_context_fact_count": 0,
+        "forbidden_fact_count": 1,
+        "mrr": 1,
         "retrieval_ms": 408,
         "failure_reasons": [
-          "wrong_article"
+          "wrong_article",
+          "missing_context_fact"
         ]
       },
       {
@@ -258,7 +395,14 @@
         "clause_hit": null,
         "point_hit": null,
         "level_hit": true,
-        "mrr": 1.0,
+        "context_fact_coverage": 1,
+        "full_context_fact_coverage": true,
+        "forbidden_fact_in_context_rate": 0,
+        "covered_fact_count": 3,
+        "expected_fact_count": 3,
+        "forbidden_context_fact_count": 0,
+        "forbidden_fact_count": 1,
+        "mrr": 1,
         "retrieval_ms": 396,
         "failure_reasons": []
       },
@@ -269,10 +413,18 @@
         "clause_hit": null,
         "point_hit": null,
         "level_hit": true,
-        "mrr": 1.0,
+        "context_fact_coverage": 0,
+        "full_context_fact_coverage": false,
+        "forbidden_fact_in_context_rate": 0,
+        "covered_fact_count": 0,
+        "expected_fact_count": 3,
+        "forbidden_context_fact_count": 0,
+        "forbidden_fact_count": 1,
+        "mrr": 1,
         "retrieval_ms": 401,
         "failure_reasons": [
-          "wrong_article"
+          "wrong_article",
+          "missing_context_fact"
         ]
       },
       {
@@ -282,9 +434,18 @@
         "clause_hit": null,
         "point_hit": null,
         "level_hit": true,
-        "mrr": 1.0,
+        "context_fact_coverage": 0.5,
+        "full_context_fact_coverage": false,
+        "forbidden_fact_in_context_rate": 0,
+        "covered_fact_count": 1,
+        "expected_fact_count": 2,
+        "forbidden_context_fact_count": 0,
+        "forbidden_fact_count": 1,
+        "mrr": 1,
         "retrieval_ms": 422,
-        "failure_reasons": []
+        "failure_reasons": [
+          "missing_context_fact"
+        ]
       },
       {
         "id": "labor_assignment_020",
@@ -293,10 +454,18 @@
         "clause_hit": null,
         "point_hit": null,
         "level_hit": true,
-        "mrr": 1.0,
+        "context_fact_coverage": 0,
+        "full_context_fact_coverage": false,
+        "forbidden_fact_in_context_rate": 0,
+        "covered_fact_count": 0,
+        "expected_fact_count": 2,
+        "forbidden_context_fact_count": 0,
+        "forbidden_fact_count": 1,
+        "mrr": 1,
         "retrieval_ms": 420,
         "failure_reasons": [
-          "wrong_article"
+          "wrong_article",
+          "missing_context_fact"
         ]
       },
       {
@@ -306,7 +475,14 @@
         "clause_hit": null,
         "point_hit": null,
         "level_hit": true,
-        "mrr": 1.0,
+        "context_fact_coverage": 1,
+        "full_context_fact_coverage": true,
+        "forbidden_fact_in_context_rate": 0,
+        "covered_fact_count": 3,
+        "expected_fact_count": 3,
+        "forbidden_context_fact_count": 0,
+        "forbidden_fact_count": 1,
+        "mrr": 1,
         "retrieval_ms": 464,
         "failure_reasons": []
       },
@@ -317,7 +493,14 @@
         "clause_hit": null,
         "point_hit": null,
         "level_hit": true,
-        "mrr": 1.0,
+        "context_fact_coverage": 1,
+        "full_context_fact_coverage": true,
+        "forbidden_fact_in_context_rate": 0,
+        "covered_fact_count": 3,
+        "expected_fact_count": 3,
+        "forbidden_context_fact_count": 0,
+        "forbidden_fact_count": 1,
+        "mrr": 1,
         "retrieval_ms": 394,
         "failure_reasons": [
           "wrong_article"
@@ -330,7 +513,14 @@
         "clause_hit": null,
         "point_hit": null,
         "level_hit": true,
-        "mrr": 1.0,
+        "context_fact_coverage": 1,
+        "full_context_fact_coverage": true,
+        "forbidden_fact_in_context_rate": 0,
+        "covered_fact_count": 3,
+        "expected_fact_count": 3,
+        "forbidden_context_fact_count": 0,
+        "forbidden_fact_count": 1,
+        "mrr": 1,
         "retrieval_ms": 395,
         "failure_reasons": []
       },
@@ -341,7 +531,14 @@
         "clause_hit": null,
         "point_hit": null,
         "level_hit": true,
-        "mrr": 1.0,
+        "context_fact_coverage": 1,
+        "full_context_fact_coverage": true,
+        "forbidden_fact_in_context_rate": 0,
+        "covered_fact_count": 1,
+        "expected_fact_count": 1,
+        "forbidden_context_fact_count": 0,
+        "forbidden_fact_count": 1,
+        "mrr": 1,
         "retrieval_ms": 428,
         "failure_reasons": [
           "wrong_article"
@@ -354,9 +551,18 @@
         "clause_hit": null,
         "point_hit": null,
         "level_hit": true,
-        "mrr": 1.0,
+        "context_fact_coverage": 0.5,
+        "full_context_fact_coverage": false,
+        "forbidden_fact_in_context_rate": 0,
+        "covered_fact_count": 1,
+        "expected_fact_count": 2,
+        "forbidden_context_fact_count": 0,
+        "forbidden_fact_count": 1,
+        "mrr": 1,
         "retrieval_ms": 506,
-        "failure_reasons": []
+        "failure_reasons": [
+          "missing_context_fact"
+        ]
       },
       {
         "id": "labor_job_loss_allowance_026",
@@ -365,7 +571,14 @@
         "clause_hit": null,
         "point_hit": null,
         "level_hit": true,
-        "mrr": 1.0,
+        "context_fact_coverage": 1,
+        "full_context_fact_coverage": true,
+        "forbidden_fact_in_context_rate": 0,
+        "covered_fact_count": 2,
+        "expected_fact_count": 2,
+        "forbidden_context_fact_count": 0,
+        "forbidden_fact_count": 1,
+        "mrr": 1,
         "retrieval_ms": 444,
         "failure_reasons": []
       },
@@ -376,11 +589,19 @@
         "clause_hit": null,
         "point_hit": null,
         "level_hit": false,
+        "context_fact_coverage": 0,
+        "full_context_fact_coverage": false,
+        "forbidden_fact_in_context_rate": 0,
+        "covered_fact_count": 0,
+        "expected_fact_count": 2,
+        "forbidden_context_fact_count": 0,
+        "forbidden_fact_count": 1,
         "mrr": null,
         "retrieval_ms": 422,
         "failure_reasons": [
           "wrong_doc",
-          "wrong_article"
+          "wrong_article",
+          "missing_context_fact"
         ]
       },
       {
@@ -390,9 +611,18 @@
         "clause_hit": null,
         "point_hit": null,
         "level_hit": true,
-        "mrr": 1.0,
+        "context_fact_coverage": 0,
+        "full_context_fact_coverage": false,
+        "forbidden_fact_in_context_rate": 0,
+        "covered_fact_count": 0,
+        "expected_fact_count": 3,
+        "forbidden_context_fact_count": 0,
+        "forbidden_fact_count": 1,
+        "mrr": 1,
         "retrieval_ms": 392,
-        "failure_reasons": []
+        "failure_reasons": [
+          "missing_context_fact"
+        ]
       },
       {
         "id": "labor_salary_stop_work_029",
@@ -401,10 +631,18 @@
         "clause_hit": null,
         "point_hit": null,
         "level_hit": true,
-        "mrr": 1.0,
+        "context_fact_coverage": 0.5,
+        "full_context_fact_coverage": false,
+        "forbidden_fact_in_context_rate": 0,
+        "covered_fact_count": 1,
+        "expected_fact_count": 2,
+        "forbidden_context_fact_count": 0,
+        "forbidden_fact_count": 1,
+        "mrr": 1,
         "retrieval_ms": 400,
         "failure_reasons": [
-          "wrong_article"
+          "wrong_article",
+          "missing_context_fact"
         ]
       },
       {
@@ -414,7 +652,14 @@
         "clause_hit": null,
         "point_hit": null,
         "level_hit": true,
-        "mrr": 1.0,
+        "context_fact_coverage": 1,
+        "full_context_fact_coverage": true,
+        "forbidden_fact_in_context_rate": 0,
+        "covered_fact_count": 2,
+        "expected_fact_count": 2,
+        "forbidden_context_fact_count": 0,
+        "forbidden_fact_count": 1,
+        "mrr": 1,
         "retrieval_ms": 395,
         "failure_reasons": []
       },
@@ -425,9 +670,18 @@
         "clause_hit": null,
         "point_hit": null,
         "level_hit": true,
-        "mrr": 1.0,
+        "context_fact_coverage": 0,
+        "full_context_fact_coverage": false,
+        "forbidden_fact_in_context_rate": 0,
+        "covered_fact_count": 0,
+        "expected_fact_count": 2,
+        "forbidden_context_fact_count": 0,
+        "forbidden_fact_count": 1,
+        "mrr": 1,
         "retrieval_ms": 423,
-        "failure_reasons": []
+        "failure_reasons": [
+          "missing_context_fact"
+        ]
       },
       {
         "id": "labor_weekly_rest_032",
@@ -436,9 +690,18 @@
         "clause_hit": null,
         "point_hit": null,
         "level_hit": true,
-        "mrr": 1.0,
+        "context_fact_coverage": 0,
+        "full_context_fact_coverage": false,
+        "forbidden_fact_in_context_rate": 0,
+        "covered_fact_count": 0,
+        "expected_fact_count": 1,
+        "forbidden_context_fact_count": 0,
+        "forbidden_fact_count": 1,
+        "mrr": 1,
         "retrieval_ms": 481,
-        "failure_reasons": []
+        "failure_reasons": [
+          "missing_context_fact"
+        ]
       },
       {
         "id": "labor_unpaid_leave_033",
@@ -447,10 +710,18 @@
         "clause_hit": null,
         "point_hit": null,
         "level_hit": true,
-        "mrr": 1.0,
+        "context_fact_coverage": 0,
+        "full_context_fact_coverage": false,
+        "forbidden_fact_in_context_rate": 0,
+        "covered_fact_count": 0,
+        "expected_fact_count": 3,
+        "forbidden_context_fact_count": 0,
+        "forbidden_fact_count": 1,
+        "mrr": 1,
         "retrieval_ms": 484,
         "failure_reasons": [
-          "wrong_article"
+          "wrong_article",
+          "missing_context_fact"
         ]
       },
       {
@@ -460,7 +731,14 @@
         "clause_hit": null,
         "point_hit": null,
         "level_hit": true,
-        "mrr": 1.0,
+        "context_fact_coverage": 1,
+        "full_context_fact_coverage": true,
+        "forbidden_fact_in_context_rate": 0,
+        "covered_fact_count": 3,
+        "expected_fact_count": 3,
+        "forbidden_context_fact_count": 0,
+        "forbidden_fact_count": 1,
+        "mrr": 1,
         "retrieval_ms": 436,
         "failure_reasons": []
       },
@@ -471,9 +749,18 @@
         "clause_hit": null,
         "point_hit": null,
         "level_hit": true,
-        "mrr": 1.0,
+        "context_fact_coverage": 0.6666666666666666,
+        "full_context_fact_coverage": false,
+        "forbidden_fact_in_context_rate": 0,
+        "covered_fact_count": 2,
+        "expected_fact_count": 3,
+        "forbidden_context_fact_count": 0,
+        "forbidden_fact_count": 1,
+        "mrr": 1,
         "retrieval_ms": 429,
-        "failure_reasons": []
+        "failure_reasons": [
+          "missing_context_fact"
+        ]
       },
       {
         "id": "labor_discipline_forms_036",
@@ -482,7 +769,14 @@
         "clause_hit": null,
         "point_hit": null,
         "level_hit": true,
-        "mrr": 1.0,
+        "context_fact_coverage": 1,
+        "full_context_fact_coverage": true,
+        "forbidden_fact_in_context_rate": 0,
+        "covered_fact_count": 4,
+        "expected_fact_count": 4,
+        "forbidden_context_fact_count": 0,
+        "forbidden_fact_count": 1,
+        "mrr": 1,
         "retrieval_ms": 431,
         "failure_reasons": []
       },
@@ -493,9 +787,18 @@
         "clause_hit": null,
         "point_hit": null,
         "level_hit": true,
-        "mrr": 1.0,
+        "context_fact_coverage": 0.3333333333333333,
+        "full_context_fact_coverage": false,
+        "forbidden_fact_in_context_rate": 0,
+        "covered_fact_count": 1,
+        "expected_fact_count": 3,
+        "forbidden_context_fact_count": 0,
+        "forbidden_fact_count": 1,
+        "mrr": 1,
         "retrieval_ms": 484,
-        "failure_reasons": []
+        "failure_reasons": [
+          "missing_context_fact"
+        ]
       },
       {
         "id": "labor_prohibited_discipline_038",
@@ -504,7 +807,14 @@
         "clause_hit": null,
         "point_hit": null,
         "level_hit": true,
-        "mrr": 1.0,
+        "context_fact_coverage": 1,
+        "full_context_fact_coverage": true,
+        "forbidden_fact_in_context_rate": 0,
+        "covered_fact_count": 2,
+        "expected_fact_count": 2,
+        "forbidden_context_fact_count": 0,
+        "forbidden_fact_count": 1,
+        "mrr": 1,
         "retrieval_ms": 462,
         "failure_reasons": []
       },
@@ -515,9 +825,18 @@
         "clause_hit": null,
         "point_hit": null,
         "level_hit": true,
-        "mrr": 1.0,
+        "context_fact_coverage": 0.6666666666666666,
+        "full_context_fact_coverage": false,
+        "forbidden_fact_in_context_rate": 0,
+        "covered_fact_count": 2,
+        "expected_fact_count": 3,
+        "forbidden_context_fact_count": 0,
+        "forbidden_fact_count": 1,
+        "mrr": 1,
         "retrieval_ms": 441,
-        "failure_reasons": []
+        "failure_reasons": [
+          "missing_context_fact"
+        ]
       },
       {
         "id": "labor_retirement_age_040",
@@ -526,10 +845,18 @@
         "clause_hit": null,
         "point_hit": null,
         "level_hit": true,
-        "mrr": 1.0,
+        "context_fact_coverage": 0,
+        "full_context_fact_coverage": false,
+        "forbidden_fact_in_context_rate": 0,
+        "covered_fact_count": 0,
+        "expected_fact_count": 3,
+        "forbidden_context_fact_count": 0,
+        "forbidden_fact_count": 1,
+        "mrr": 1,
         "retrieval_ms": 427,
         "failure_reasons": [
-          "wrong_article"
+          "wrong_article",
+          "missing_context_fact"
         ]
       },
       {
@@ -539,9 +866,18 @@
         "clause_hit": null,
         "point_hit": null,
         "level_hit": true,
-        "mrr": 1.0,
+        "context_fact_coverage": 0.5,
+        "full_context_fact_coverage": false,
+        "forbidden_fact_in_context_rate": 0,
+        "covered_fact_count": 1,
+        "expected_fact_count": 2,
+        "forbidden_context_fact_count": 0,
+        "forbidden_fact_count": 1,
+        "mrr": 1,
         "retrieval_ms": 411,
-        "failure_reasons": []
+        "failure_reasons": [
+          "missing_context_fact"
+        ]
       },
       {
         "id": "labor_child_marriage_leave_042",
@@ -550,9 +886,18 @@
         "clause_hit": null,
         "point_hit": null,
         "level_hit": true,
-        "mrr": 1.0,
+        "context_fact_coverage": 0.5,
+        "full_context_fact_coverage": false,
+        "forbidden_fact_in_context_rate": 0,
+        "covered_fact_count": 1,
+        "expected_fact_count": 2,
+        "forbidden_context_fact_count": 0,
+        "forbidden_fact_count": 1,
+        "mrr": 1,
         "retrieval_ms": 458,
-        "failure_reasons": []
+        "failure_reasons": [
+          "missing_context_fact"
+        ]
       },
       {
         "id": "labor_family_death_leave_043",
@@ -561,9 +906,18 @@
         "clause_hit": null,
         "point_hit": null,
         "level_hit": true,
-        "mrr": 1.0,
+        "context_fact_coverage": 0.5,
+        "full_context_fact_coverage": false,
+        "forbidden_fact_in_context_rate": 0,
+        "covered_fact_count": 1,
+        "expected_fact_count": 2,
+        "forbidden_context_fact_count": 0,
+        "forbidden_fact_count": 1,
+        "mrr": 1,
         "retrieval_ms": 502,
-        "failure_reasons": []
+        "failure_reasons": [
+          "missing_context_fact"
+        ]
       },
       {
         "id": "labor_notice_indefinite_044",
@@ -572,7 +926,14 @@
         "clause_hit": null,
         "point_hit": null,
         "level_hit": true,
-        "mrr": 1.0,
+        "context_fact_coverage": 1,
+        "full_context_fact_coverage": true,
+        "forbidden_fact_in_context_rate": 0,
+        "covered_fact_count": 1,
+        "expected_fact_count": 1,
+        "forbidden_context_fact_count": 0,
+        "forbidden_fact_count": 1,
+        "mrr": 1,
         "retrieval_ms": 430,
         "failure_reasons": []
       },
@@ -583,7 +944,14 @@
         "clause_hit": null,
         "point_hit": null,
         "level_hit": true,
-        "mrr": 1.0,
+        "context_fact_coverage": 1,
+        "full_context_fact_coverage": true,
+        "forbidden_fact_in_context_rate": 0,
+        "covered_fact_count": 1,
+        "expected_fact_count": 1,
+        "forbidden_context_fact_count": 0,
+        "forbidden_fact_count": 1,
+        "mrr": 1,
         "retrieval_ms": 452,
         "failure_reasons": []
       },
@@ -594,10 +962,18 @@
         "clause_hit": null,
         "point_hit": null,
         "level_hit": true,
-        "mrr": 1.0,
+        "context_fact_coverage": 0,
+        "full_context_fact_coverage": false,
+        "forbidden_fact_in_context_rate": 0,
+        "covered_fact_count": 0,
+        "expected_fact_count": 1,
+        "forbidden_context_fact_count": 0,
+        "forbidden_fact_count": 1,
+        "mrr": 1,
         "retrieval_ms": 590,
         "failure_reasons": [
-          "wrong_article"
+          "wrong_article",
+          "missing_context_fact"
         ]
       },
       {
@@ -607,9 +983,18 @@
         "clause_hit": null,
         "point_hit": null,
         "level_hit": true,
-        "mrr": 1.0,
+        "context_fact_coverage": 0.5,
+        "full_context_fact_coverage": false,
+        "forbidden_fact_in_context_rate": 0,
+        "covered_fact_count": 1,
+        "expected_fact_count": 2,
+        "forbidden_context_fact_count": 0,
+        "forbidden_fact_count": 1,
+        "mrr": 1,
         "retrieval_ms": 420,
-        "failure_reasons": []
+        "failure_reasons": [
+          "missing_context_fact"
+        ]
       },
       {
         "id": "labor_return_documents_048",
@@ -618,10 +1003,18 @@
         "clause_hit": null,
         "point_hit": null,
         "level_hit": true,
-        "mrr": 1.0,
+        "context_fact_coverage": 0,
+        "full_context_fact_coverage": false,
+        "forbidden_fact_in_context_rate": 0,
+        "covered_fact_count": 0,
+        "expected_fact_count": 2,
+        "forbidden_context_fact_count": 0,
+        "forbidden_fact_count": 1,
+        "mrr": 1,
         "retrieval_ms": 494,
         "failure_reasons": [
-          "wrong_article"
+          "wrong_article",
+          "missing_context_fact"
         ]
       },
       {
@@ -631,9 +1024,18 @@
         "clause_hit": null,
         "point_hit": null,
         "level_hit": true,
-        "mrr": 1.0,
+        "context_fact_coverage": 0,
+        "full_context_fact_coverage": false,
+        "forbidden_fact_in_context_rate": 0,
+        "covered_fact_count": 0,
+        "expected_fact_count": 2,
+        "forbidden_context_fact_count": 0,
+        "forbidden_fact_count": 1,
+        "mrr": 1,
         "retrieval_ms": 454,
-        "failure_reasons": []
+        "failure_reasons": [
+          "missing_context_fact"
+        ]
       },
       {
         "id": "labor_suspension_work_050",
@@ -642,9 +1044,18 @@
         "clause_hit": null,
         "point_hit": null,
         "level_hit": true,
-        "mrr": 1.0,
+        "context_fact_coverage": 0,
+        "full_context_fact_coverage": false,
+        "forbidden_fact_in_context_rate": 0,
+        "covered_fact_count": 0,
+        "expected_fact_count": 2,
+        "forbidden_context_fact_count": 0,
+        "forbidden_fact_count": 1,
+        "mrr": 1,
         "retrieval_ms": 434,
-        "failure_reasons": []
+        "failure_reasons": [
+          "missing_context_fact"
+        ]
       },
       {
         "id": "labor_state_policy_051",
@@ -653,7 +1064,14 @@
         "clause_hit": null,
         "point_hit": null,
         "level_hit": true,
-        "mrr": 1.0,
+        "context_fact_coverage": 1,
+        "full_context_fact_coverage": true,
+        "forbidden_fact_in_context_rate": 0,
+        "covered_fact_count": 3,
+        "expected_fact_count": 3,
+        "forbidden_context_fact_count": 0,
+        "forbidden_fact_count": 1,
+        "mrr": 1,
         "retrieval_ms": 476,
         "failure_reasons": []
       },
@@ -664,10 +1082,18 @@
         "clause_hit": null,
         "point_hit": null,
         "level_hit": true,
-        "mrr": 1.0,
+        "context_fact_coverage": 0,
+        "full_context_fact_coverage": false,
+        "forbidden_fact_in_context_rate": 0,
+        "covered_fact_count": 0,
+        "expected_fact_count": 3,
+        "forbidden_context_fact_count": 0,
+        "forbidden_fact_count": 1,
+        "mrr": 1,
         "retrieval_ms": 426,
         "failure_reasons": [
-          "wrong_article"
+          "wrong_article",
+          "missing_context_fact"
         ]
       },
       {
@@ -677,10 +1103,18 @@
         "clause_hit": null,
         "point_hit": null,
         "level_hit": true,
-        "mrr": 1.0,
+        "context_fact_coverage": 0,
+        "full_context_fact_coverage": false,
+        "forbidden_fact_in_context_rate": 0,
+        "covered_fact_count": 0,
+        "expected_fact_count": 3,
+        "forbidden_context_fact_count": 0,
+        "forbidden_fact_count": 1,
+        "mrr": 1,
         "retrieval_ms": 430,
         "failure_reasons": [
-          "wrong_article"
+          "wrong_article",
+          "missing_context_fact"
         ]
       },
       {
@@ -690,10 +1124,18 @@
         "clause_hit": null,
         "point_hit": null,
         "level_hit": true,
-        "mrr": 1.0,
+        "context_fact_coverage": 0,
+        "full_context_fact_coverage": false,
+        "forbidden_fact_in_context_rate": 0,
+        "covered_fact_count": 0,
+        "expected_fact_count": 3,
+        "forbidden_context_fact_count": 0,
+        "forbidden_fact_count": 1,
+        "mrr": 1,
         "retrieval_ms": 426,
         "failure_reasons": [
-          "wrong_article"
+          "wrong_article",
+          "missing_context_fact"
         ]
       },
       {
@@ -703,7 +1145,14 @@
         "clause_hit": null,
         "point_hit": null,
         "level_hit": true,
-        "mrr": 1.0,
+        "context_fact_coverage": 1,
+        "full_context_fact_coverage": true,
+        "forbidden_fact_in_context_rate": 0,
+        "covered_fact_count": 3,
+        "expected_fact_count": 3,
+        "forbidden_context_fact_count": 0,
+        "forbidden_fact_count": 1,
+        "mrr": 1,
         "retrieval_ms": 526,
         "failure_reasons": []
       },
@@ -714,10 +1163,18 @@
         "clause_hit": null,
         "point_hit": null,
         "level_hit": false,
-        "mrr": 1.0,
+        "context_fact_coverage": 0,
+        "full_context_fact_coverage": false,
+        "forbidden_fact_in_context_rate": 0,
+        "covered_fact_count": 0,
+        "expected_fact_count": 3,
+        "forbidden_context_fact_count": 0,
+        "forbidden_fact_count": 1,
+        "mrr": 1,
         "retrieval_ms": 537,
         "failure_reasons": [
-          "wrong_article"
+          "wrong_article",
+          "missing_context_fact"
         ]
       },
       {
@@ -727,10 +1184,18 @@
         "clause_hit": null,
         "point_hit": null,
         "level_hit": false,
-        "mrr": 1.0,
+        "context_fact_coverage": 0,
+        "full_context_fact_coverage": false,
+        "forbidden_fact_in_context_rate": 0,
+        "covered_fact_count": 0,
+        "expected_fact_count": 3,
+        "forbidden_context_fact_count": 0,
+        "forbidden_fact_count": 1,
+        "mrr": 1,
         "retrieval_ms": 521,
         "failure_reasons": [
-          "wrong_article"
+          "wrong_article",
+          "missing_context_fact"
         ]
       },
       {
@@ -740,7 +1205,14 @@
         "clause_hit": null,
         "point_hit": null,
         "level_hit": true,
-        "mrr": 1.0,
+        "context_fact_coverage": 1,
+        "full_context_fact_coverage": true,
+        "forbidden_fact_in_context_rate": 0,
+        "covered_fact_count": 2,
+        "expected_fact_count": 2,
+        "forbidden_context_fact_count": 0,
+        "forbidden_fact_count": 1,
+        "mrr": 1,
         "retrieval_ms": 475,
         "failure_reasons": []
       },
@@ -751,7 +1223,14 @@
         "clause_hit": null,
         "point_hit": null,
         "level_hit": true,
-        "mrr": 1.0,
+        "context_fact_coverage": 1,
+        "full_context_fact_coverage": true,
+        "forbidden_fact_in_context_rate": 0,
+        "covered_fact_count": 2,
+        "expected_fact_count": 2,
+        "forbidden_context_fact_count": 0,
+        "forbidden_fact_count": 1,
+        "mrr": 1,
         "retrieval_ms": 503,
         "failure_reasons": []
       },
@@ -762,7 +1241,14 @@
         "clause_hit": null,
         "point_hit": null,
         "level_hit": true,
-        "mrr": 1.0,
+        "context_fact_coverage": 1,
+        "full_context_fact_coverage": true,
+        "forbidden_fact_in_context_rate": 0,
+        "covered_fact_count": 2,
+        "expected_fact_count": 2,
+        "forbidden_context_fact_count": 0,
+        "forbidden_fact_count": 1,
+        "mrr": 1,
         "retrieval_ms": 507,
         "failure_reasons": []
       },
@@ -773,7 +1259,14 @@
         "clause_hit": true,
         "point_hit": null,
         "level_hit": true,
-        "mrr": 1.0,
+        "context_fact_coverage": 1,
+        "full_context_fact_coverage": true,
+        "forbidden_fact_in_context_rate": 0,
+        "covered_fact_count": 2,
+        "expected_fact_count": 2,
+        "forbidden_context_fact_count": 0,
+        "forbidden_fact_count": 1,
+        "mrr": 1,
         "retrieval_ms": 494,
         "failure_reasons": []
       },
@@ -784,10 +1277,18 @@
         "clause_hit": null,
         "point_hit": null,
         "level_hit": true,
-        "mrr": 1.0,
+        "context_fact_coverage": 0,
+        "full_context_fact_coverage": false,
+        "forbidden_fact_in_context_rate": 0,
+        "covered_fact_count": 0,
+        "expected_fact_count": 1,
+        "forbidden_context_fact_count": 0,
+        "forbidden_fact_count": 1,
+        "mrr": 1,
         "retrieval_ms": 462,
         "failure_reasons": [
-          "wrong_article"
+          "wrong_article",
+          "missing_context_fact"
         ]
       },
       {
@@ -797,7 +1298,14 @@
         "clause_hit": null,
         "point_hit": null,
         "level_hit": false,
-        "mrr": 1.0,
+        "context_fact_coverage": 1,
+        "full_context_fact_coverage": true,
+        "forbidden_fact_in_context_rate": 0,
+        "covered_fact_count": 1,
+        "expected_fact_count": 1,
+        "forbidden_context_fact_count": 0,
+        "forbidden_fact_count": 1,
+        "mrr": 1,
         "retrieval_ms": 473,
         "failure_reasons": []
       },
@@ -808,7 +1316,14 @@
         "clause_hit": null,
         "point_hit": null,
         "level_hit": true,
-        "mrr": 1.0,
+        "context_fact_coverage": 1,
+        "full_context_fact_coverage": true,
+        "forbidden_fact_in_context_rate": 0,
+        "covered_fact_count": 2,
+        "expected_fact_count": 2,
+        "forbidden_context_fact_count": 0,
+        "forbidden_fact_count": 1,
+        "mrr": 1,
         "retrieval_ms": 412,
         "failure_reasons": [
           "wrong_article"
@@ -821,7 +1336,14 @@
         "clause_hit": null,
         "point_hit": null,
         "level_hit": true,
-        "mrr": 1.0,
+        "context_fact_coverage": 1,
+        "full_context_fact_coverage": true,
+        "forbidden_fact_in_context_rate": 0,
+        "covered_fact_count": 2,
+        "expected_fact_count": 2,
+        "forbidden_context_fact_count": 0,
+        "forbidden_fact_count": 1,
+        "mrr": 1,
         "retrieval_ms": 434,
         "failure_reasons": []
       },
@@ -832,7 +1354,14 @@
         "clause_hit": null,
         "point_hit": null,
         "level_hit": true,
-        "mrr": 1.0,
+        "context_fact_coverage": 1,
+        "full_context_fact_coverage": true,
+        "forbidden_fact_in_context_rate": 0,
+        "covered_fact_count": 2,
+        "expected_fact_count": 2,
+        "forbidden_context_fact_count": 0,
+        "forbidden_fact_count": 1,
+        "mrr": 1,
         "retrieval_ms": 805,
         "failure_reasons": []
       },
@@ -843,7 +1372,14 @@
         "clause_hit": null,
         "point_hit": null,
         "level_hit": false,
-        "mrr": 1.0,
+        "context_fact_coverage": 1,
+        "full_context_fact_coverage": true,
+        "forbidden_fact_in_context_rate": 0,
+        "covered_fact_count": 2,
+        "expected_fact_count": 2,
+        "forbidden_context_fact_count": 0,
+        "forbidden_fact_count": 1,
+        "mrr": 1,
         "retrieval_ms": 439,
         "failure_reasons": []
       },
@@ -854,7 +1390,14 @@
         "clause_hit": null,
         "point_hit": null,
         "level_hit": true,
-        "mrr": 1.0,
+        "context_fact_coverage": 1,
+        "full_context_fact_coverage": true,
+        "forbidden_fact_in_context_rate": 0,
+        "covered_fact_count": 2,
+        "expected_fact_count": 2,
+        "forbidden_context_fact_count": 0,
+        "forbidden_fact_count": 1,
+        "mrr": 1,
         "retrieval_ms": 427,
         "failure_reasons": []
       },
@@ -865,7 +1408,14 @@
         "clause_hit": null,
         "point_hit": null,
         "level_hit": true,
-        "mrr": 1.0,
+        "context_fact_coverage": 1,
+        "full_context_fact_coverage": true,
+        "forbidden_fact_in_context_rate": 0,
+        "covered_fact_count": 1,
+        "expected_fact_count": 1,
+        "forbidden_context_fact_count": 0,
+        "forbidden_fact_count": 1,
+        "mrr": 1,
         "retrieval_ms": 410,
         "failure_reasons": []
       },
@@ -876,6 +1426,13 @@
         "clause_hit": null,
         "point_hit": null,
         "level_hit": true,
+        "context_fact_coverage": 1,
+        "full_context_fact_coverage": true,
+        "forbidden_fact_in_context_rate": 0,
+        "covered_fact_count": 1,
+        "expected_fact_count": 1,
+        "forbidden_context_fact_count": 0,
+        "forbidden_fact_count": 1,
         "mrr": 0.5,
         "retrieval_ms": 458,
         "failure_reasons": []
@@ -887,7 +1444,14 @@
         "clause_hit": null,
         "point_hit": null,
         "level_hit": true,
-        "mrr": 1.0,
+        "context_fact_coverage": 1,
+        "full_context_fact_coverage": true,
+        "forbidden_fact_in_context_rate": 0,
+        "covered_fact_count": 1,
+        "expected_fact_count": 1,
+        "forbidden_context_fact_count": 0,
+        "forbidden_fact_count": 1,
+        "mrr": 1,
         "retrieval_ms": 401,
         "failure_reasons": []
       },
@@ -898,10 +1462,18 @@
         "clause_hit": null,
         "point_hit": null,
         "level_hit": true,
-        "mrr": 1.0,
+        "context_fact_coverage": 0,
+        "full_context_fact_coverage": false,
+        "forbidden_fact_in_context_rate": 0,
+        "covered_fact_count": 0,
+        "expected_fact_count": 1,
+        "forbidden_context_fact_count": 0,
+        "forbidden_fact_count": 1,
+        "mrr": 1,
         "retrieval_ms": 420,
         "failure_reasons": [
-          "wrong_article"
+          "wrong_article",
+          "missing_context_fact"
         ]
       },
       {
@@ -911,7 +1483,14 @@
         "clause_hit": null,
         "point_hit": null,
         "level_hit": true,
-        "mrr": 1.0,
+        "context_fact_coverage": 1,
+        "full_context_fact_coverage": true,
+        "forbidden_fact_in_context_rate": 0,
+        "covered_fact_count": 1,
+        "expected_fact_count": 1,
+        "forbidden_context_fact_count": 0,
+        "forbidden_fact_count": 1,
+        "mrr": 1,
         "retrieval_ms": 406,
         "failure_reasons": []
       },
@@ -922,10 +1501,18 @@
         "clause_hit": null,
         "point_hit": null,
         "level_hit": true,
-        "mrr": 1.0,
+        "context_fact_coverage": 0,
+        "full_context_fact_coverage": false,
+        "forbidden_fact_in_context_rate": 0,
+        "covered_fact_count": 0,
+        "expected_fact_count": 2,
+        "forbidden_context_fact_count": 0,
+        "forbidden_fact_count": 1,
+        "mrr": 1,
         "retrieval_ms": 426,
         "failure_reasons": [
-          "wrong_article"
+          "wrong_article",
+          "missing_context_fact"
         ]
       },
       {
@@ -935,7 +1522,14 @@
         "clause_hit": null,
         "point_hit": null,
         "level_hit": true,
-        "mrr": 1.0,
+        "context_fact_coverage": 1,
+        "full_context_fact_coverage": true,
+        "forbidden_fact_in_context_rate": 0,
+        "covered_fact_count": 2,
+        "expected_fact_count": 2,
+        "forbidden_context_fact_count": 0,
+        "forbidden_fact_count": 1,
+        "mrr": 1,
         "retrieval_ms": 418,
         "failure_reasons": []
       },
@@ -946,7 +1540,14 @@
         "clause_hit": null,
         "point_hit": null,
         "level_hit": false,
-        "mrr": 1.0,
+        "context_fact_coverage": 1,
+        "full_context_fact_coverage": true,
+        "forbidden_fact_in_context_rate": 0,
+        "covered_fact_count": 2,
+        "expected_fact_count": 2,
+        "forbidden_context_fact_count": 0,
+        "forbidden_fact_count": 1,
+        "mrr": 1,
         "retrieval_ms": 451,
         "failure_reasons": []
       },
@@ -957,7 +1558,14 @@
         "clause_hit": null,
         "point_hit": null,
         "level_hit": true,
-        "mrr": 1.0,
+        "context_fact_coverage": 1,
+        "full_context_fact_coverage": true,
+        "forbidden_fact_in_context_rate": 0,
+        "covered_fact_count": 2,
+        "expected_fact_count": 2,
+        "forbidden_context_fact_count": 0,
+        "forbidden_fact_count": 1,
+        "mrr": 1,
         "retrieval_ms": 509,
         "failure_reasons": []
       },
@@ -968,11 +1576,19 @@
         "clause_hit": null,
         "point_hit": null,
         "level_hit": false,
+        "context_fact_coverage": 0,
+        "full_context_fact_coverage": false,
+        "forbidden_fact_in_context_rate": 0,
+        "covered_fact_count": 0,
+        "expected_fact_count": 1,
+        "forbidden_context_fact_count": 0,
+        "forbidden_fact_count": 1,
         "mrr": null,
         "retrieval_ms": 508,
         "failure_reasons": [
           "wrong_doc",
-          "wrong_article"
+          "wrong_article",
+          "missing_context_fact"
         ]
       },
       {
@@ -982,7 +1598,14 @@
         "clause_hit": null,
         "point_hit": null,
         "level_hit": true,
-        "mrr": 1.0,
+        "context_fact_coverage": 1,
+        "full_context_fact_coverage": true,
+        "forbidden_fact_in_context_rate": 0,
+        "covered_fact_count": 1,
+        "expected_fact_count": 1,
+        "forbidden_context_fact_count": 0,
+        "forbidden_fact_count": 1,
+        "mrr": 1,
         "retrieval_ms": 440,
         "failure_reasons": []
       },
@@ -993,7 +1616,14 @@
         "clause_hit": null,
         "point_hit": null,
         "level_hit": true,
-        "mrr": 1.0,
+        "context_fact_coverage": 1,
+        "full_context_fact_coverage": true,
+        "forbidden_fact_in_context_rate": 0,
+        "covered_fact_count": 2,
+        "expected_fact_count": 2,
+        "forbidden_context_fact_count": 0,
+        "forbidden_fact_count": 1,
+        "mrr": 1,
         "retrieval_ms": 412,
         "failure_reasons": []
       },
@@ -1004,9 +1634,18 @@
         "clause_hit": null,
         "point_hit": null,
         "level_hit": true,
-        "mrr": 1.0,
+        "context_fact_coverage": 0.5,
+        "full_context_fact_coverage": false,
+        "forbidden_fact_in_context_rate": 0,
+        "covered_fact_count": 1,
+        "expected_fact_count": 2,
+        "forbidden_context_fact_count": 0,
+        "forbidden_fact_count": 1,
+        "mrr": 1,
         "retrieval_ms": 415,
-        "failure_reasons": []
+        "failure_reasons": [
+          "missing_context_fact"
+        ]
       },
       {
         "id": "cyber_no_weather_082",
@@ -1015,9 +1654,18 @@
         "clause_hit": null,
         "point_hit": null,
         "level_hit": true,
-        "mrr": 1.0,
+        "context_fact_coverage": 0,
+        "full_context_fact_coverage": false,
+        "forbidden_fact_in_context_rate": 0,
+        "covered_fact_count": 0,
+        "expected_fact_count": 2,
+        "forbidden_context_fact_count": 0,
+        "forbidden_fact_count": 1,
+        "mrr": 1,
         "retrieval_ms": 404,
-        "failure_reasons": []
+        "failure_reasons": [
+          "missing_context_fact"
+        ]
       },
       {
         "id": "land_price_table_083",
@@ -1026,7 +1674,14 @@
         "clause_hit": null,
         "point_hit": null,
         "level_hit": true,
-        "mrr": 1.0,
+        "context_fact_coverage": 1,
+        "full_context_fact_coverage": true,
+        "forbidden_fact_in_context_rate": 0,
+        "covered_fact_count": 2,
+        "expected_fact_count": 2,
+        "forbidden_context_fact_count": 0,
+        "forbidden_fact_count": 1,
+        "mrr": 1,
         "retrieval_ms": 415,
         "failure_reasons": []
       },
@@ -1037,9 +1692,18 @@
         "clause_hit": null,
         "point_hit": null,
         "level_hit": true,
-        "mrr": 1.0,
+        "context_fact_coverage": 1,
+        "full_context_fact_coverage": true,
+        "forbidden_fact_in_context_rate": 1,
+        "covered_fact_count": 2,
+        "expected_fact_count": 2,
+        "forbidden_context_fact_count": 1,
+        "forbidden_fact_count": 1,
+        "mrr": 1,
         "retrieval_ms": 439,
-        "failure_reasons": []
+        "failure_reasons": [
+          "forbidden_context_fact"
+        ]
       },
       {
         "id": "land_price_chu_manh_trinh_085",
@@ -1048,9 +1712,18 @@
         "clause_hit": null,
         "point_hit": null,
         "level_hit": true,
-        "mrr": 1.0,
+        "context_fact_coverage": 1,
+        "full_context_fact_coverage": true,
+        "forbidden_fact_in_context_rate": 1,
+        "covered_fact_count": 2,
+        "expected_fact_count": 2,
+        "forbidden_context_fact_count": 1,
+        "forbidden_fact_count": 1,
+        "mrr": 1,
         "retrieval_ms": 524,
-        "failure_reasons": []
+        "failure_reasons": [
+          "forbidden_context_fact"
+        ]
       },
       {
         "id": "land_price_lam_son_086",
@@ -1059,9 +1732,18 @@
         "clause_hit": null,
         "point_hit": null,
         "level_hit": true,
-        "mrr": 1.0,
+        "context_fact_coverage": 1,
+        "full_context_fact_coverage": true,
+        "forbidden_fact_in_context_rate": 1,
+        "covered_fact_count": 2,
+        "expected_fact_count": 2,
+        "forbidden_context_fact_count": 1,
+        "forbidden_fact_count": 1,
+        "mrr": 1,
         "retrieval_ms": 406,
-        "failure_reasons": []
+        "failure_reasons": [
+          "forbidden_context_fact"
+        ]
       },
       {
         "id": "land_price_me_linh_087",
@@ -1070,9 +1752,18 @@
         "clause_hit": null,
         "point_hit": null,
         "level_hit": true,
-        "mrr": 1.0,
+        "context_fact_coverage": 1,
+        "full_context_fact_coverage": true,
+        "forbidden_fact_in_context_rate": 1,
+        "covered_fact_count": 2,
+        "expected_fact_count": 2,
+        "forbidden_context_fact_count": 1,
+        "forbidden_fact_count": 1,
+        "mrr": 1,
         "retrieval_ms": 429,
-        "failure_reasons": []
+        "failure_reasons": [
+          "forbidden_context_fact"
+        ]
       },
       {
         "id": "land_price_cong_xa_paris_088",
@@ -1081,7 +1772,14 @@
         "clause_hit": null,
         "point_hit": null,
         "level_hit": true,
-        "mrr": 1.0,
+        "context_fact_coverage": 1,
+        "full_context_fact_coverage": true,
+        "forbidden_fact_in_context_rate": 0,
+        "covered_fact_count": 2,
+        "expected_fact_count": 2,
+        "forbidden_context_fact_count": 0,
+        "forbidden_fact_count": 1,
+        "mrr": 1,
         "retrieval_ms": 477,
         "failure_reasons": []
       },
@@ -1092,7 +1790,14 @@
         "clause_hit": null,
         "point_hit": null,
         "level_hit": true,
-        "mrr": 1.0,
+        "context_fact_coverage": 1,
+        "full_context_fact_coverage": true,
+        "forbidden_fact_in_context_rate": 0,
+        "covered_fact_count": 4,
+        "expected_fact_count": 4,
+        "forbidden_context_fact_count": 0,
+        "forbidden_fact_count": 1,
+        "mrr": 1,
         "retrieval_ms": 453,
         "failure_reasons": []
       },
@@ -1103,7 +1808,14 @@
         "clause_hit": null,
         "point_hit": null,
         "level_hit": true,
-        "mrr": 1.0,
+        "context_fact_coverage": 1,
+        "full_context_fact_coverage": true,
+        "forbidden_fact_in_context_rate": 0,
+        "covered_fact_count": 2,
+        "expected_fact_count": 2,
+        "forbidden_context_fact_count": 0,
+        "forbidden_fact_count": 1,
+        "mrr": 1,
         "retrieval_ms": 472,
         "failure_reasons": []
       },
@@ -1114,6 +1826,13 @@
         "clause_hit": null,
         "point_hit": null,
         "level_hit": null,
+        "context_fact_coverage": null,
+        "full_context_fact_coverage": null,
+        "forbidden_fact_in_context_rate": null,
+        "covered_fact_count": 0,
+        "expected_fact_count": 0,
+        "forbidden_context_fact_count": 0,
+        "forbidden_fact_count": 0,
         "mrr": null,
         "retrieval_ms": 443,
         "failure_reasons": []
@@ -1125,6 +1844,13 @@
         "clause_hit": null,
         "point_hit": null,
         "level_hit": null,
+        "context_fact_coverage": null,
+        "full_context_fact_coverage": null,
+        "forbidden_fact_in_context_rate": null,
+        "covered_fact_count": 0,
+        "expected_fact_count": 0,
+        "forbidden_context_fact_count": 0,
+        "forbidden_fact_count": 0,
         "mrr": null,
         "retrieval_ms": 427,
         "failure_reasons": []
@@ -1136,6 +1862,13 @@
         "clause_hit": null,
         "point_hit": null,
         "level_hit": null,
+        "context_fact_coverage": null,
+        "full_context_fact_coverage": null,
+        "forbidden_fact_in_context_rate": null,
+        "covered_fact_count": 0,
+        "expected_fact_count": 0,
+        "forbidden_context_fact_count": 0,
+        "forbidden_fact_count": 0,
         "mrr": null,
         "retrieval_ms": 418,
         "failure_reasons": []
@@ -1147,6 +1880,13 @@
         "clause_hit": null,
         "point_hit": null,
         "level_hit": null,
+        "context_fact_coverage": null,
+        "full_context_fact_coverage": null,
+        "forbidden_fact_in_context_rate": null,
+        "covered_fact_count": 0,
+        "expected_fact_count": 0,
+        "forbidden_context_fact_count": 0,
+        "forbidden_fact_count": 0,
         "mrr": null,
         "retrieval_ms": 496,
         "failure_reasons": []
@@ -1158,6 +1898,13 @@
         "clause_hit": null,
         "point_hit": null,
         "level_hit": null,
+        "context_fact_coverage": null,
+        "full_context_fact_coverage": null,
+        "forbidden_fact_in_context_rate": null,
+        "covered_fact_count": 0,
+        "expected_fact_count": 0,
+        "forbidden_context_fact_count": 0,
+        "forbidden_fact_count": 0,
         "mrr": null,
         "retrieval_ms": 474,
         "failure_reasons": []
@@ -1169,6 +1916,13 @@
         "clause_hit": null,
         "point_hit": null,
         "level_hit": null,
+        "context_fact_coverage": null,
+        "full_context_fact_coverage": null,
+        "forbidden_fact_in_context_rate": null,
+        "covered_fact_count": 0,
+        "expected_fact_count": 0,
+        "forbidden_context_fact_count": 0,
+        "forbidden_fact_count": 0,
         "mrr": null,
         "retrieval_ms": 478,
         "failure_reasons": []
@@ -1180,6 +1934,13 @@
         "clause_hit": null,
         "point_hit": null,
         "level_hit": null,
+        "context_fact_coverage": null,
+        "full_context_fact_coverage": null,
+        "forbidden_fact_in_context_rate": null,
+        "covered_fact_count": 0,
+        "expected_fact_count": 0,
+        "forbidden_context_fact_count": 0,
+        "forbidden_fact_count": 0,
         "mrr": null,
         "retrieval_ms": 461,
         "failure_reasons": []
@@ -1191,6 +1952,13 @@
         "clause_hit": null,
         "point_hit": null,
         "level_hit": null,
+        "context_fact_coverage": null,
+        "full_context_fact_coverage": null,
+        "forbidden_fact_in_context_rate": null,
+        "covered_fact_count": 0,
+        "expected_fact_count": 0,
+        "forbidden_context_fact_count": 0,
+        "forbidden_fact_count": 0,
         "mrr": null,
         "retrieval_ms": 619,
         "failure_reasons": []
@@ -1202,6 +1970,13 @@
         "clause_hit": null,
         "point_hit": null,
         "level_hit": null,
+        "context_fact_coverage": null,
+        "full_context_fact_coverage": null,
+        "forbidden_fact_in_context_rate": null,
+        "covered_fact_count": 0,
+        "expected_fact_count": 0,
+        "forbidden_context_fact_count": 0,
+        "forbidden_fact_count": 0,
         "mrr": null,
         "retrieval_ms": 455,
         "failure_reasons": []
@@ -1213,7 +1988,14 @@
         "clause_hit": null,
         "point_hit": null,
         "level_hit": true,
-        "mrr": 1.0,
+        "context_fact_coverage": null,
+        "full_context_fact_coverage": null,
+        "forbidden_fact_in_context_rate": null,
+        "covered_fact_count": 0,
+        "expected_fact_count": 0,
+        "forbidden_context_fact_count": 0,
+        "forbidden_fact_count": 0,
+        "mrr": 1,
         "retrieval_ms": 414,
         "failure_reasons": []
       }
@@ -1266,7 +2048,7 @@
     },
     {
       "gate": "corpus_chunk_avg_chars",
-      "value": 843.4,
+      "value": 843.4098671726755,
       "rule": "between (500, 1200)",
       "status": "PASS"
     },
@@ -1289,16 +2071,22 @@
       "status": "PASS"
     },
     {
-      "gate": "retrieval_article_hit_at_k",
-      "value": 0.68,
-      "rule": "gte 0.85",
+      "gate": "retrieval_context_fact_coverage_at_k",
+      "value": 0.5913978494623656,
+      "rule": "gte 0.8",
       "status": "FAIL"
     },
     {
-      "gate": "retrieval_clause_hit_at_k",
-      "value": 0.3333333333333333,
-      "rule": "gte 0.75",
+      "gate": "retrieval_full_context_fact_case_rate_at_k",
+      "value": 0.5222222222222223,
+      "rule": "gte 0.7",
       "status": "FAIL"
+    },
+    {
+      "gate": "retrieval_forbidden_fact_in_context_rate_at_k",
+      "value": 0.044444444444444446,
+      "rule": "lte 0.05",
+      "status": "PASS"
     },
     {
       "gate": "retrieval_mrr",
@@ -1356,6 +2144,137 @@
       },
       {
         "id": "labor_annual_leave_005"
+      }
+    ],
+    "missing_context_fact": [
+      {
+        "id": "labor_overtime_002"
+      },
+      {
+        "id": "labor_probation_result_007"
+      },
+      {
+        "id": "labor_contract_types_008"
+      },
+      {
+        "id": "labor_employee_termination_009"
+      },
+      {
+        "id": "labor_employer_termination_010"
+      },
+      {
+        "id": "labor_salary_payment_011"
+      },
+      {
+        "id": "labor_minor_worker_013"
+      },
+      {
+        "id": "labor_social_insurance_014"
+      },
+      {
+        "id": "labor_strike_definition_015"
+      },
+      {
+        "id": "labor_collective_bargaining_016"
+      },
+      {
+        "id": "labor_contract_content_018"
+      },
+      {
+        "id": "labor_prohibited_acts_019"
+      },
+      {
+        "id": "labor_assignment_020"
+      },
+      {
+        "id": "labor_severance_allowance_025"
+      },
+      {
+        "id": "labor_wage_scale_027"
+      },
+      {
+        "id": "labor_overtime_pay_028"
+      },
+      {
+        "id": "labor_salary_stop_work_029"
+      },
+      {
+        "id": "labor_rest_break_031"
+      },
+      {
+        "id": "labor_weekly_rest_032"
+      },
+      {
+        "id": "labor_unpaid_leave_033"
+      },
+      {
+        "id": "labor_discipline_principles_035"
+      },
+      {
+        "id": "labor_dismissal_037"
+      },
+      {
+        "id": "labor_minor_rules_039"
+      },
+      {
+        "id": "labor_retirement_age_040"
+      },
+      {
+        "id": "labor_marriage_leave_041"
+      },
+      {
+        "id": "labor_child_marriage_leave_042"
+      },
+      {
+        "id": "labor_family_death_leave_043"
+      },
+      {
+        "id": "labor_notice_short_fixed_046"
+      },
+      {
+        "id": "labor_termination_payment_047"
+      },
+      {
+        "id": "labor_return_documents_048"
+      },
+      {
+        "id": "labor_discipline_time_limit_049"
+      },
+      {
+        "id": "labor_suspension_work_050"
+      },
+      {
+        "id": "labor_employee_rights_052"
+      },
+      {
+        "id": "labor_employer_obligations_053"
+      },
+      {
+        "id": "labor_relationship_principles_054"
+      },
+      {
+        "id": "labor_worker_definition_056"
+      },
+      {
+        "id": "labor_forced_labor_definition_057"
+      },
+      {
+        "id": "tax_effective_date_062"
+      },
+      {
+        "id": "tax_non_resident_072"
+      },
+      {
+        "id": "cyber_transition_074"
+      },
+      {
+        "id": "cyber_transition_previous_law_078"
+      },
+      {
+        "id": "cyber_legal_basis_081"
+      },
+      {
+        "id": "cyber_no_weather_082"
       }
     ],
     "wrong_article": [
@@ -1438,6 +2357,20 @@
       },
       {
         "id": "cyber_transition_previous_law_078"
+      }
+    ],
+    "forbidden_context_fact": [
+      {
+        "id": "land_price_cao_ba_quat_084"
+      },
+      {
+        "id": "land_price_chu_manh_trinh_085"
+      },
+      {
+        "id": "land_price_lam_son_086"
+      },
+      {
+        "id": "land_price_me_linh_087"
       }
     ]
   }

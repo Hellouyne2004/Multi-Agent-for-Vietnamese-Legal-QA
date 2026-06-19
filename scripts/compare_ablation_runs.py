@@ -57,6 +57,9 @@ def summarize_run(label: str, path: Path, cases: list[dict[str, Any]], top_k: in
         "status": "scored",
         "cases": len(predictions),
         "doc_hit_at_5": retrieval.get("doc_hit_at_k"),
+        "context_fact_coverage_at_5": retrieval.get("context_fact_coverage_at_k"),
+        "full_context_fact_case_rate_at_5": retrieval.get("full_context_fact_case_rate_at_k"),
+        "forbidden_fact_in_context_rate_at_5": retrieval.get("forbidden_fact_in_context_rate_at_k"),
         "article_hit_at_5": retrieval.get("article_hit_at_k"),
         "clause_hit_at_5": retrieval.get("clause_hit_at_k"),
         "mrr": retrieval.get("mrr"),
@@ -75,8 +78,8 @@ def write_markdown(report: dict[str, Any], out_md: Path) -> None:
         f"- Created at: {report['created_at']}",
         f"- Dataset: `{report['dataset']}`",
         "",
-        "| Variant | Status | Cases | Doc Hit@5 | Article Hit@5 | Clause Hit@5 | MRR | Fact Coverage | Grounded Rate | Unsupported Claims | Error Rate | Avg latency ms |",
-        "| --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |",
+        "| Variant | Status | Cases | Doc Hit@5 | Context Fact Coverage@5 | Full Fact Cases@5 | Forbidden Context Facts@5 | Article Hit@5 diag | Clause Hit@5 diag | MRR | Answer Fact Coverage | Grounded Rate | Unsupported Claims | Error Rate | Avg latency ms |",
+        "| --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |",
     ]
     for run in report.get("runs", []):
         lines.append(
@@ -87,6 +90,9 @@ def write_markdown(report: dict[str, Any], out_md: Path) -> None:
                     str(run.get("status", "n/a")),
                     str(run.get("cases", 0)),
                     fmt_percent(run.get("doc_hit_at_5")),
+                    fmt_percent(run.get("context_fact_coverage_at_5")),
+                    fmt_percent(run.get("full_context_fact_case_rate_at_5")),
+                    fmt_percent(run.get("forbidden_fact_in_context_rate_at_5")),
                     fmt_percent(run.get("article_hit_at_5")),
                     fmt_percent(run.get("clause_hit_at_5")),
                     fmt_percent(run.get("mrr")),

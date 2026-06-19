@@ -1,8 +1,9 @@
 # Legal QA Evaluation Report
 
-- Dataset: `data\evaluation\legal_qa_eval_100.jsonl` (100 cases)
+- Created at: 2026-06-19T10:05:18
+- Dataset: `data/evaluation/legal_qa_eval_100.jsonl` (100 cases)
 - Mode: scored_retrieval_predictions
-- Predictions: `eval_reports\retrieval_predictions.jsonl`
+- Predictions: `eval_reports/retrieval_predictions.jsonl`
 - Component: `retrieval`
 - Prediction coverage: 100/100 dataset cases (100.00%)
 - Prediction rows: 100 rows, 100 unique case IDs
@@ -12,12 +13,13 @@
 | Gate | Value | Rule | Status |
 | --- | --- | --- | --- |
 | corpus_missing_metadata_total | 0 | lte 0 | PASS |
-| corpus_chunk_avg_chars | 843.4 | between (500, 1200) | PASS |
+| corpus_chunk_avg_chars | 843.4098671726755 | between (500, 1200) | PASS |
 | router_intent_accuracy | n/a | gte 0.9 | N/A |
 | router_refusal_accuracy | n/a | gte 0.9 | N/A |
 | retrieval_doc_hit_at_k | 97.80% | gte 0.95 | PASS |
-| retrieval_article_hit_at_k | 68.00% | gte 0.85 | FAIL |
-| retrieval_clause_hit_at_k | 33.33% | gte 0.75 | FAIL |
+| retrieval_context_fact_coverage_at_k | 59.14% | gte 0.8 | FAIL |
+| retrieval_full_context_fact_case_rate_at_k | 52.22% | gte 0.7 | FAIL |
+| retrieval_forbidden_fact_in_context_rate_at_k | 4.44% | lte 0.05 | PASS |
 | retrieval_mrr | 99.44% | gte 0.8 | PASS |
 | generation_fact_coverage | n/a | gte 0.75 | N/A |
 | generation_forbidden_fact_rate | n/a | lte 0.05 | N/A |
@@ -34,7 +36,7 @@
 - Chunks: 527
 - Chunk chars: min=201, avg=843.4, max=2199
 - Missing metadata total: 0
-- Levels: `{'preamble': 3, 'article': 236, 'clause': 219, 'point': 57, 'document': 6, 'table': 6}`
+- Levels: `{"preamble":3,"article":236,"clause":219,"point":57,"document":6,"table":6}`
 
 ## Router And Agent Decisions
 
@@ -48,13 +50,19 @@
 ## Retrieval Summary
 
 | Metric | Value |
-| --- | ---: |
+| --- | --- |
 | Cases | 100 |
 | Doc Hit@5 | 97.80% |
-| Article Hit@5 | 68.00% |
-| Clause Hit@5 | 33.33% |
-| Point Hit@5 | n/a |
-| Level Hit@5 | 87.91% |
+| Evidence Cases | 90 |
+| Context Fact Coverage@5 | 59.14% |
+| Full Context Fact Case Rate@5 | 52.22% |
+| Forbidden Fact In Context Rate@5 | 4.44% |
+| Covered Expected Facts@5 | 110/186 |
+| Forbidden Facts Found@5 | 4/90 |
+| Article Hit@5 diagnostic | 68.00% |
+| Clause Hit@5 diagnostic | 33.33% |
+| Point Hit@5 diagnostic | n/a |
+| Level Hit@5 diagnostic | 87.91% |
 | MRR | 99.44% |
 | Avg retrieval latency | 537.39 ms |
 | P95 retrieval latency | 526.55 ms |
@@ -83,23 +91,26 @@
 
 | Category | Cases | Sample IDs |
 | --- | --- | --- |
+| missing_context_fact | 43 | labor_overtime_002, labor_probation_result_007, labor_contract_types_008, labor_employee_termination_009, labor_employer_termination_010, labor_salary_payment_011, labor_minor_worker_013, labor_social_insurance_014 |
 | wrong_article | 24 | labor_contract_types_008, labor_employee_termination_009, labor_strike_definition_015, labor_collective_bargaining_016, labor_contract_content_018, labor_assignment_020, labor_part_time_022, labor_illegal_termination_024 |
+| forbidden_context_fact | 4 | land_price_cao_ba_quat_084, land_price_chu_manh_trinh_085, land_price_lam_son_086, land_price_me_linh_087 |
 | wrong_clause | 2 | labor_working_time_001, labor_annual_leave_005 |
 | wrong_doc | 2 | labor_wage_scale_027, cyber_transition_previous_law_078 |
 
 ## Ablation Summary
 
-| Variant | Cases | Doc Hit@5 | Article Hit@5 | Clause Hit@5 | Fact Coverage | Grounded Rate |
-| --- | --- | --- | --- | --- | --- | --- |
-| dense | 0 | n/a | n/a | n/a | n/a | n/a |
-| sparse | 0 | n/a | n/a | n/a | n/a | n/a |
-| hybrid | 0 | n/a | n/a | n/a | n/a | n/a |
-| full_graph | 0 | n/a | n/a | n/a | n/a | n/a |
+| Variant | Cases | Doc Hit@5 | Context Fact Coverage@5 | Full Fact Cases@5 | Forbidden Context Facts@5 | Article Hit@5 diag | Clause Hit@5 diag | Answer Fact Coverage | Grounded Rate |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| dense | 0 | n/a | n/a | n/a | n/a | n/a | n/a | n/a | n/a |
+| sparse | 0 | n/a | n/a | n/a | n/a | n/a | n/a | n/a | n/a |
+| hybrid | 0 | n/a | n/a | n/a | n/a | n/a | n/a | n/a | n/a |
+| full_graph | 0 | n/a | n/a | n/a | n/a | n/a | n/a | n/a | n/a |
 
 ## Notes
 
-- Predictions scored from eval_reports\retrieval_predictions.jsonl.
+- Predictions scored from eval_reports/retrieval_predictions.jsonl.
 - Deterministic metrics are always reported; LLM-as-judge is opt-in.
+- Retrieval gates prioritize context fact coverage; article/clause/point hits are diagnostic metadata metrics.
 - Retrieval component mode skips router, grader, generation, and E2E answer metrics.
 
 ## Reproduce
