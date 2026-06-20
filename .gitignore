@@ -69,8 +69,8 @@ data/processed/chunking_report.json
 data/processed/metadata/
 data/processed/text/
 data/processed/pdf_ocr/
-eval_reports/latest.json
-eval_reports/*predictions*.jsonl
+# Generated evaluation artifacts stay local. Publish only curated summaries.
+eval_reports/
 Report_*.docx
 *.docx
 docs/report_assets/

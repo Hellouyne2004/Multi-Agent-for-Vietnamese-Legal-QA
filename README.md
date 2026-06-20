@@ -28,14 +28,10 @@ and reproduction commands.
 | Retrieval | 100/100 benchmark predictions | **97.80% Doc Hit@5** |
 | Retrieval | 91 eligible cases | **97.25% standard MRR@5** |
 | Retrieval | 100 predictions | **0% runtime errors**, 526.55 ms P95 |
-| Evidence quality | 186 expected facts | 59.14% Context Fact Coverage@5 |
-| Router holdout | 17 successful predictions | **17/17 correct intent and policy action** |
-| Router coverage | 30-case blind holdout | 18/30 rows; blocked by API quota |
 
-The current evidence supports a controlled internal demo, not a production
-readiness claim. Retrieval evidence coverage remains the main upstream quality
-bottleneck; generation and full E2E scores are deferred until a valid,
-benchmark-aligned run is available.
+The published snapshot contains completed benchmark results only. A 30-case
+blind Router policy holdout is included in the repository, but its metrics will
+be published only after all cases have been collected under one frozen config.
 
 ## Architecture
 
@@ -76,7 +72,7 @@ User question
 api/                         FastAPI app and QA router
 data/evaluation/             Public benchmark seed for repeatable evaluation
 data/processed/              Document registry and ingestion quality summary
-eval_reports/                Generated evaluation reports and failure analysis
+eval_reports/                Local generated reports (git-ignored)
 frontend/                    React/Vite UI
 scripts/                     Indexing, evaluation, observability, and utility scripts
 src/                         Agents, graph state, data pipeline, models, utilities
@@ -153,8 +149,6 @@ npm run dev
 
 ## Evaluation
 
-Reusable, quota-aware prompts for auditing each system component are available in [`docs/EVALUATION_PROMPTS.md`](docs/EVALUATION_PROMPTS.md).
-
 The evaluator is organized around three quality layers:
 
 - **Corpus quality**: metadata completeness, chunk length distribution, legal/table structure coverage, OCR quality summary.
@@ -166,10 +160,10 @@ cases and records latency, quality gates, and failure categories. Reports also
 track `prediction_coverage`, so partial runs are not mistaken for complete
 benchmark results.
 
-The concise public summary is in
-[`docs/EVALUATION_RESULTS.md`](docs/EVALUATION_RESULTS.md). Detailed evidence is
-kept in `eval_reports/retrieval_100.md`, `eval_reports/retrieval_audit.md`,
-`eval_reports/failure_analysis.md`, and `eval_reports/router_holdout_30.md`.
+The curated public summary is in
+[`docs/EVALUATION_RESULTS.md`](docs/EVALUATION_RESULTS.md). Raw predictions and
+generated reports stay local under `eval_reports/` and can be reproduced with
+the evaluation scripts.
 
 ## Tests
 
