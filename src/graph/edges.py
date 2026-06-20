@@ -9,9 +9,9 @@ from src.utils.logger import logger
 from src.config import MAX_RETRIES
 
 
-def decide_to_retrieve(state: GraphState) -> Literal["retriever", END]:
+def decide_to_retrieve(state: GraphState) -> Literal["retriever", "web_searcher", END]:
     """
-    Dựa trên intent từ router để quyết định có đi tiếp đến retriever hay dừng lại.
+    Ưu tiên policy action từ router để chọn corpus, web hoặc dừng workflow.
     
     Args:
         state: Trạng thái hiện tại của graph
@@ -19,15 +19,40 @@ def decide_to_retrieve(state: GraphState) -> Literal["retriever", END]:
     Returns:
         Tên node tiếp theo hoặc END
     """
+    route_action = state.get("route_action")
     intent = state.get("intent")
-    
-    if intent in ["legal_query", "procedural"]:
-        logger.info(f"[EDGE] Intent matches RAG flow: '{intent}'. Routing to retriever.")
+
+    if route_action == "retrieve":
+        logger.info("[EDGE] route_action=retrieve. Routing to retriever.")
         return "retriever"
-    
-    logger.info(f"[EDGE] Intent '{intent}' does not require RAG. Routing to END.")
-    # router_node đã trả về intent, generator_node sẽ không chạy
-    # Ta có thể thêm một node "simple_chat" nếu muốn, nhưng ở đây theo design là exit.
+
+    if route_action == "web_required":
+        logger.info("[EDGE] route_action=web_required. Routing to web_searcher.")
+        return "web_searcher"
+
+    if route_action in {
+        "redirect_out_of_scope",
+        "respond_chat",
+        "refuse_unsafe",
+        "refuse_unsupported",
+        "router_error",
+    }:
+        logger.info("[EDGE] route_action='{}' stops the RAG flow.", route_action)
+        return END
+
+    # Backward compatibility for old saved states that predate route_action.
+    if route_action is None and intent in ["legal_query", "procedural"]:
+        logger.warning(
+            "[EDGE] Missing route_action; falling back to legacy intent='{}'.",
+            intent,
+        )
+        return "retriever"
+
+    logger.warning(
+        "[EDGE] Invalid or missing route_action='{}' for intent='{}'. Routing to END.",
+        route_action,
+        intent,
+    )
     return END
 
 

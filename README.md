@@ -17,18 +17,25 @@ Vietnamese legal question-answering system built with **LangGraph multi-agent RA
 
 ## Evaluation Snapshot
 
-The evaluation suite is designed to measure the system by layer instead of treating the multi-agent graph as a black box. Under Gemini free-tier limits, the current public results focus on a **100-case retrieval benchmark** and a smaller **20-case end-to-end benchmark** for quota-aware validation.
+The project uses component-wise evaluation so that corpus, retrieval, routing,
+generation, and runtime failures are measured independently. See the
+[`Evaluation Results`](docs/EVALUATION_RESULTS.md) for denominators, limitations,
+and reproduction commands.
 
-| Area | Metric | Current snapshot |
-| --- | ---: | ---: |
-| Corpus | Registry documents | 4 |
-| Corpus | Chunks | 527 |
-| Corpus | Missing metadata | 0 |
-| Benchmark | Retrieval cases | 100 |
-| Benchmark | E2E subset cases | 20 |
-| Retrieval report | Metrics | Doc Hit@5, Article Hit@5, Clause Hit@5, MRR, latency |
+| Component | Scope | Current result |
+| --- | --- | ---: |
+| Corpus | 4 documents, 527 chunks | 0 missing required metadata fields |
+| Retrieval | 100/100 benchmark predictions | **97.80% Doc Hit@5** |
+| Retrieval | 91 eligible cases | **97.25% standard MRR@5** |
+| Retrieval | 100 predictions | **0% runtime errors**, 526.55 ms P95 |
+| Evidence quality | 186 expected facts | 59.14% Context Fact Coverage@5 |
+| Router holdout | 17 successful predictions | **17/17 correct intent and policy action** |
+| Router coverage | 30-case blind holdout | 18/30 rows; blocked by API quota |
 
-The benchmark covers the current 4-document indexed corpus with direct legal lookup, procedural questions, table lookup, out-of-scope routing, unsafe requests, and hallucination traps. Failure analysis is used to separate corpus issues, retrieval misses, citation problems, and unsupported-answer behavior.
+The current evidence supports a controlled internal demo, not a production
+readiness claim. Retrieval evidence coverage remains the main upstream quality
+bottleneck; generation and full E2E scores are deferred until a valid,
+benchmark-aligned run is available.
 
 ## Architecture
 
@@ -146,15 +153,23 @@ npm run dev
 
 ## Evaluation
 
+Reusable, quota-aware prompts for auditing each system component are available in [`docs/EVALUATION_PROMPTS.md`](docs/EVALUATION_PROMPTS.md).
+
 The evaluator is organized around three quality layers:
 
 - **Corpus quality**: metadata completeness, chunk length distribution, legal/table structure coverage, OCR quality summary.
 - **Component quality**: router intent accuracy, retrieval Doc/Article/Clause Hit@k, MRR, grader decision accuracy, citation validity, deterministic hallucination checks.
 - **End-to-end quality**: fact coverage, forbidden fact rate, grounded answer rate, refusal accuracy, unsupported numeric claims, retry count, web fallback usage, latency, and error rate.
 
-The current retrieval report has full prediction coverage on 100 benchmark cases and records latency, quality gates, and failure categories. Reports also track `prediction_coverage`, so partial E2E runs are not mistaken for full benchmark failures.
+The current retrieval report has full prediction coverage on 100 benchmark
+cases and records latency, quality gates, and failure categories. Reports also
+track `prediction_coverage`, so partial runs are not mistaken for complete
+benchmark results.
 
-Generated reports are written to `eval_reports/retrieval_100.md` and `eval_reports/failure_analysis.md` after running the retrieval evaluator.
+The concise public summary is in
+[`docs/EVALUATION_RESULTS.md`](docs/EVALUATION_RESULTS.md). Detailed evidence is
+kept in `eval_reports/retrieval_100.md`, `eval_reports/retrieval_audit.md`,
+`eval_reports/failure_analysis.md`, and `eval_reports/router_holdout_30.md`.
 
 ## Tests
 
@@ -190,7 +205,7 @@ Example safe log shape:
 ## Limitations
 
 - The default report remains offline and deterministic; full graph evaluation requires Qdrant plus configured LLM credentials.
-- Gemini free-tier quotas make a full 100-case E2E run impractical; use 100-case retrieval metrics and the 20-case E2E subset for CV-ready reporting.
+- Gemini free-tier quotas make a full E2E run impractical; only benchmark-aligned completed component results are reported publicly.
 - LLM-as-judge is optional and should be used as a secondary signal, not as the only source of truth.
 - Ablation comparison is scored from prediction files; missing variant files are reported as missing rather than filled with synthetic scores.
-- The CV-ready evaluation bullet: "Designed and implemented a component-wise evaluation framework for a Vietnamese Legal Multi-Agent RAG system, covering corpus quality, 100-case hybrid retrieval benchmarking, quota-aware E2E evaluation, prediction coverage tracking, citation validation, hallucination checks, latency metrics, ablation studies, and failure analysis."
+- The CV-ready evaluation bullet: "Designed a component-wise evaluation framework for Vietnamese Legal Agentic RAG; benchmarked hybrid retrieval on 100 cases (97.8% Doc Hit@5, 97.25% MRR@5, 0% runtime errors), built a blind Router policy holdout, and traced evidence failures across ranking, OCR, labels, and table chunking."

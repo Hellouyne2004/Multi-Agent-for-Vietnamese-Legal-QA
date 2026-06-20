@@ -28,6 +28,10 @@ def _summarize_output(updates: dict[str, Any]) -> str:
     compact_keys = [
         "intent",
         "intent_confidence",
+        "route_action",
+        "route_confidence",
+        "router_attempt_count",
+        "router_key_index",
         "grader_verdict",
         "grader_score",
         "retrieved_chunk_ids",
@@ -117,6 +121,7 @@ def build_graph():
         decide_to_retrieve,
         {
             "retriever": "retriever",
+            "web_searcher": "web_searcher",
             END: END
         }
     )

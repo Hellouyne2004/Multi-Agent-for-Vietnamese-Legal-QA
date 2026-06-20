@@ -1,21 +1,6 @@
-"""
-Agents module - 6 LLM-powered agents cho Multi-Agent RAG hệ thống pháp lý tiếng Việt.
+"""Lazy public exports for the workflow agents."""
 
-Các agents:
-1. Router: Phân loại intent câu hỏi
-2. Retriever: Tìm kiếm hybrid (BM25 + Vector)
-3. Grader: CRAG relevance check
-4. Web Searcher: Tìm kiếm web fallback
-5. Generator: Sinh câu trả lời với trích dẫn
-6. Hallucination Grader: Kiểm tra ảo giác
-"""
-
-from .retriever import retriever_node
-from .router import router_node
-from .grader import grader_node
-from .web_searcher import web_searcher_node
-from .generator import generator_node
-from .hallucination_grader import hallucination_grader_node
+from importlib import import_module
 
 __all__ = [
     "retriever_node",
@@ -25,3 +10,20 @@ __all__ = [
     "generator_node",
     "hallucination_grader_node",
 ]
+
+
+_NODE_MODULES = {
+    "retriever_node": ".retriever",
+    "router_node": ".router",
+    "grader_node": ".grader",
+    "web_searcher_node": ".web_searcher",
+    "generator_node": ".generator",
+    "hallucination_grader_node": ".hallucination_grader",
+}
+
+
+def __getattr__(name: str):
+    module_name = _NODE_MODULES.get(name)
+    if module_name is None:
+        raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
+    return getattr(import_module(module_name, __name__), name)

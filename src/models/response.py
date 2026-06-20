@@ -30,6 +30,8 @@ class AnswerResponse(BaseModel):
     confidence: float = 0.0
     intent: Optional[str] = None
     intent_confidence: Optional[float] = None
+    route_action: Optional[str] = None
+    route_confidence: Optional[float] = None
     generation_attempt: int = 1
     processing_time_ms: int = 0
     error: Optional[str] = None

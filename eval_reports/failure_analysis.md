@@ -1,7 +1,7 @@
 # Legal QA Failure Analysis
 
-- Created at: 2026-06-19T10:05:18
-- Dataset: `data/evaluation/legal_qa_eval_100.jsonl`
+- Created at: 2026-06-20T13:57:16
+- Dataset: `data\evaluation\legal_qa_eval_100.jsonl`
 - Mode: scored_retrieval_predictions
 
 ## Top Failure Categories

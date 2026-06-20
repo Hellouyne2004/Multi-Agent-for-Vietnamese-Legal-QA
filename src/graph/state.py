@@ -40,6 +40,20 @@ class GraphState(TypedDict, total=False):
     # Router
     intent: Optional[Literal["legal_query", "procedural", "out_of_scope", "general_chat"]]
     intent_confidence: Optional[float]
+    route_action: Optional[
+        Literal[
+            "retrieve",
+            "redirect_out_of_scope",
+            "respond_chat",
+            "refuse_unsafe",
+            "refuse_unsupported",
+            "web_required",
+            "router_error",
+        ]
+    ]
+    route_confidence: Optional[float]
+    router_attempt_count: Optional[int]
+    router_key_index: Optional[int]
 
     # Retrieval coordination
     query_filters: Optional[dict]
@@ -86,6 +100,10 @@ def create_initial_state(question: str, user_id: str = "") -> GraphState:
         user_id=user_id or None,
         intent=None,
         intent_confidence=None,
+        route_action=None,
+        route_confidence=None,
+        router_attempt_count=None,
+        router_key_index=None,
         query_filters=None,
         query_preferences=None,
         retrieved_chunk_ids=None,

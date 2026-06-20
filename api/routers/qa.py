@@ -167,6 +167,8 @@ def _map_state_to_response(state: dict, processing_time: int) -> AnswerResponse:
         confidence=confidence,
         intent=state.get("intent"),
         intent_confidence=state.get("intent_confidence"),
+        route_action=state.get("route_action"),
+        route_confidence=state.get("route_confidence"),
         generation_attempt=state.get("generation_attempt", 1),
         processing_time_ms=processing_time,
         error=error_val

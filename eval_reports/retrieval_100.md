@@ -1,9 +1,9 @@
 # Legal QA Evaluation Report
 
-- Created at: 2026-06-19T10:05:18
-- Dataset: `data/evaluation/legal_qa_eval_100.jsonl` (100 cases)
+- Created at: 2026-06-20T13:57:16
+- Dataset: `data\evaluation\legal_qa_eval_100.jsonl` (100 cases)
 - Mode: scored_retrieval_predictions
-- Predictions: `eval_reports/retrieval_predictions.jsonl`
+- Predictions: `eval_reports\retrieval_predictions.jsonl`
 - Component: `retrieval`
 - Prediction coverage: 100/100 dataset cases (100.00%)
 - Prediction rows: 100 rows, 100 unique case IDs
@@ -13,7 +13,7 @@
 | Gate | Value | Rule | Status |
 | --- | --- | --- | --- |
 | corpus_missing_metadata_total | 0 | lte 0 | PASS |
-| corpus_chunk_avg_chars | 843.4098671726755 | between (500, 1200) | PASS |
+| corpus_chunk_avg_chars | 843.4 | between (500, 1200) | PASS |
 | router_intent_accuracy | n/a | gte 0.9 | N/A |
 | router_refusal_accuracy | n/a | gte 0.9 | N/A |
 | retrieval_doc_hit_at_k | 97.80% | gte 0.95 | PASS |
@@ -36,7 +36,7 @@
 - Chunks: 527
 - Chunk chars: min=201, avg=843.4, max=2199
 - Missing metadata total: 0
-- Levels: `{"preamble":3,"article":236,"clause":219,"point":57,"document":6,"table":6}`
+- Levels: `{'preamble': 3, 'article': 236, 'clause': 219, 'point': 57, 'document': 6, 'table': 6}`
 
 ## Router And Agent Decisions
 
@@ -50,7 +50,7 @@
 ## Retrieval Summary
 
 | Metric | Value |
-| --- | --- |
+| --- | ---: |
 | Cases | 100 |
 | Doc Hit@5 | 97.80% |
 | Evidence Cases | 90 |
@@ -108,7 +108,7 @@
 
 ## Notes
 
-- Predictions scored from eval_reports/retrieval_predictions.jsonl.
+- Predictions scored from eval_reports\retrieval_predictions.jsonl.
 - Deterministic metrics are always reported; LLM-as-judge is opt-in.
 - Retrieval gates prioritize context fact coverage; article/clause/point hits are diagnostic metadata metrics.
 - Retrieval component mode skips router, grader, generation, and E2E answer metrics.

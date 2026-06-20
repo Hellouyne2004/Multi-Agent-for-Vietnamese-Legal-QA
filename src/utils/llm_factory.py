@@ -105,6 +105,9 @@ class ObservedFallbackChain:
         self.json_mode = json_mode
         self.candidates = candidates
         self.key_order_indices = [key_index for key_index, _ in candidates]
+        self.last_attempt_count = 0
+        self.last_key_index: int | None = None
+        self.last_error_kinds: list[str] = []
 
         primary_key_index = self.key_order_indices[0] if self.key_order_indices else None
         fallback_key_indices = self.key_order_indices[1:]
@@ -119,13 +122,19 @@ class ObservedFallbackChain:
 
     def invoke(self, *args: Any, **kwargs: Any) -> Any:
         last_error: Exception | None = None
+        self.last_attempt_count = 0
+        self.last_key_index = None
+        self.last_error_kinds = []
         for key_index, runnable in self.candidates:
+            self.last_attempt_count += 1
             try:
                 result = runnable.invoke(*args, **kwargs)
+                self.last_key_index = key_index
                 logger.info("[LLM] agent={} key_index={} succeeded", self.purpose, key_index)
                 return result
             except Exception as exc:
                 last_error = exc
+                self.last_error_kinds.append(_error_kind(exc))
                 logger.warning(
                     "[LLM] agent={} key_index={} failed reason={}",
                     self.purpose,
@@ -140,7 +149,11 @@ class ObservedFallbackChain:
 
     async def ainvoke(self, *args: Any, **kwargs: Any) -> Any:
         last_error: Exception | None = None
+        self.last_attempt_count = 0
+        self.last_key_index = None
+        self.last_error_kinds = []
         for key_index, runnable in self.candidates:
+            self.last_attempt_count += 1
             try:
                 if hasattr(runnable, "ainvoke"):
                     result = runnable.ainvoke(*args, **kwargs)
@@ -148,10 +161,12 @@ class ObservedFallbackChain:
                         result = await result
                 else:
                     result = runnable.invoke(*args, **kwargs)
+                self.last_key_index = key_index
                 logger.info("[LLM] agent={} key_index={} succeeded", self.purpose, key_index)
                 return result
             except Exception as exc:
                 last_error = exc
+                self.last_error_kinds.append(_error_kind(exc))
                 logger.warning(
                     "[LLM] agent={} key_index={} failed reason={}",
                     self.purpose,
