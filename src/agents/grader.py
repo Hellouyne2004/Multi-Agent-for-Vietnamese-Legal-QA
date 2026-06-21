@@ -12,6 +12,8 @@ from src.graph.runtime_store import get_documents
 from src.graph.state import GraphState
 
 
+GRADER_PROMPT_VERSION = "grader-policy-v1.0"
+
 GRADER_PROMPT = """
 Bạn là một chuyên gia pháp lý đánh giá tính liên quan của tài liệu.
 
@@ -93,6 +95,9 @@ def grader_node(state: GraphState) -> Dict[str, Any]:
             return {
                 "grader_verdict": "no",
                 "grader_score": 0.0,
+                "grader_reasoning": "No documents were provided.",
+                "grader_attempt_count": 0,
+                "grader_key_index": None,
                 "error": None
             }
         
@@ -130,6 +135,9 @@ def grader_node(state: GraphState) -> Dict[str, Any]:
             return {
                 "grader_verdict": "no",
                 "grader_score": 0.0,
+                "grader_reasoning": "",
+                "grader_attempt_count": getattr(llm, "last_attempt_count", None),
+                "grader_key_index": getattr(llm, "last_key_index", None),
                 "error": str(parse_err)
             }
         
@@ -154,6 +162,9 @@ def grader_node(state: GraphState) -> Dict[str, Any]:
         return {
             "grader_verdict": verdict,
             "grader_score": score,
+            "grader_reasoning": reasoning,
+            "grader_attempt_count": getattr(llm, "last_attempt_count", None),
+            "grader_key_index": getattr(llm, "last_key_index", None),
             "error": None
         }
         
@@ -169,6 +180,17 @@ def grader_node(state: GraphState) -> Dict[str, Any]:
         return {
             "grader_verdict": "no",
             "grader_score": 0.0,
+            "grader_reasoning": "",
+            "grader_attempt_count": (
+                getattr(locals().get("llm"), "last_attempt_count", None)
+                if locals().get("llm") is not None
+                else None
+            ),
+            "grader_key_index": (
+                getattr(locals().get("llm"), "last_key_index", None)
+                if locals().get("llm") is not None
+                else None
+            ),
             "error": error_msg
         }
 

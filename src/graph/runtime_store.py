@@ -17,7 +17,6 @@ from typing import Any
 from qdrant_client import models
 
 from src.config import COLLECTION_NAME, ROOT_DIR
-from src.data_pipeline.indexer import get_qdrant_client
 from src.utils.logger import logger
 
 
@@ -110,6 +109,10 @@ def fetch_documents_by_chunk_ids(chunk_ids: list[str]) -> list[dict[str, Any]]:
     if not chunk_ids:
         return []
     try:
+        # Frozen-context evaluations do not need the indexing/embedding stack.
+        # Load it only when compact state ids genuinely require a Qdrant fetch.
+        from src.data_pipeline.indexer import get_qdrant_client
+
         client = get_qdrant_client()
         records, _ = client.scroll(
             collection_name=COLLECTION_NAME,

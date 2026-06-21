@@ -28,10 +28,17 @@ and reproduction commands.
 | Retrieval | 100/100 benchmark predictions | **97.80% Doc Hit@5** |
 | Retrieval | 91 eligible cases | **97.25% standard MRR@5** |
 | Retrieval | 100 predictions | **0% runtime errors**, 526.55 ms P95 |
+| Router | 30-case blind holdout | **100% intent and policy accuracy** |
+| Router policy gates | 5 cases per action | **100% recall across all 6 actions** |
+| Grader | 20-case frozen-context holdout | **90.00% accuracy**, 89.90% macro F1 |
+| Grader safety | 10 insufficient contexts | **80.00% recall**, 20.00% false-positive rate |
 
-The published snapshot contains completed benchmark results only. A 30-case
-blind Router policy holdout is included in the repository, but its metrics will
-be published only after all cases have been collected under one frozen config.
+All Router functional gates pass on the completed frozen holdout. Router P95
+latency is 10.46 seconds and remains above the 6-second target, so the result is
+appropriate for a controlled demo rather than a production-readiness claim.
+The Grader also remains pre-production: it accepts all 10 sufficient contexts,
+but incorrectly accepts 2/10 insufficient contexts and has 16.02-second P95
+latency.
 
 ## Architecture
 
@@ -202,4 +209,4 @@ Example safe log shape:
 - Gemini free-tier quotas make a full E2E run impractical; only benchmark-aligned completed component results are reported publicly.
 - LLM-as-judge is optional and should be used as a secondary signal, not as the only source of truth.
 - Ablation comparison is scored from prediction files; missing variant files are reported as missing rather than filled with synthetic scores.
-- The CV-ready evaluation bullet: "Designed a component-wise evaluation framework for Vietnamese Legal Agentic RAG; benchmarked hybrid retrieval on 100 cases (97.8% Doc Hit@5, 97.25% MRR@5, 0% runtime errors), built a blind Router policy holdout, and traced evidence failures across ranking, OCR, labels, and table chunking."
+- The CV-ready evaluation bullet: "Designed a component-wise evaluation framework for Vietnamese Legal Agentic RAG; benchmarked hybrid retrieval on 100 cases (97.8% Doc Hit@5, 97.25% MRR@5), achieved 100% intent/policy accuracy on a frozen 30-case Router holdout, and evaluated CRAG context sufficiency on 20 frozen cases (90% accuracy) with explicit safety and latency gates."

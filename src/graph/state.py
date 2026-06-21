@@ -65,6 +65,9 @@ class GraphState(TypedDict, total=False):
     # Grader
     grader_verdict: Optional[Literal["yes", "no"]]
     grader_score: Optional[float]
+    grader_reasoning: Optional[str]
+    grader_attempt_count: Optional[int]
+    grader_key_index: Optional[int]
 
     # Web search coordination
     web_result_ids: Optional[list[str]]
@@ -111,6 +114,9 @@ def create_initial_state(question: str, user_id: str = "") -> GraphState:
         selected_context_ids=None,
         grader_verdict=None,
         grader_score=None,
+        grader_reasoning=None,
+        grader_attempt_count=None,
+        grader_key_index=None,
         web_result_ids=None,
         answer=None,
         citation_ids=None,
