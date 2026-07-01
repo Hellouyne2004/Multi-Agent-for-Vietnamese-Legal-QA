@@ -87,8 +87,7 @@ Configuration: `router-policy-v2.2`, `gemini-2.5-flash`, temperature `0.1`
 
 All four intents and all six policy actions have at least five gold cases. The
 confusion matrices are diagonal: there are no false accepts, false rejects, or
-observed classification failures. Functional quality is ready for a controlled
-internal demo on this benchmark.
+observed classification failures. Functional quality demonstrates strong reliability and robustness on this benchmark.
 
 Latency remains the limiting factor. Mean/P50/P95 latency is
 `6,938 / 6,521 / 10,461 ms`. Thirteen single-attempt cases average 6,122 ms;
@@ -140,8 +139,12 @@ diagnostic only.
 - **Published:** corpus structure, the 100-case retrieval benchmark, the completed
   30-case Router holdout with six balanced policy actions, and the completed
   20-case frozen-context Grader holdout.
-- **Deferred:** generation, hallucination grader, web search, full E2E, and
-  ablation. No score is claimed for these components yet.
+- **Prepared but not yet claimed:** the 40-case E2E benchmark
+  `data/evaluation/legal_qa_eval_e2e_40.jsonl`, generation scoring,
+  route-action scoring, hallucination pass/retry metrics, web fallback tracking,
+  and failure-analysis output.
+- **Deferred:** published full E2E and ablation scores. No score is claimed for
+  these components until complete prediction files are collected.
 
 ## Reproduce
 
@@ -156,6 +159,9 @@ python scripts\score_router_eval.py --dataset data\evaluation\router_holdout_30_
 python scripts\validate_grader_benchmark.py --dataset data\evaluation\grader_eval_20.jsonl
 python scripts\run_grader_eval.py --dataset data\evaluation\grader_eval_20.jsonl --out eval_reports\grader_predictions.jsonl --append --skip-existing --limit 5 --max-errors 1
 python scripts\score_grader_eval.py --dataset data\evaluation\grader_eval_20.jsonl --predictions eval_reports\grader_predictions.jsonl --out-json eval_reports\grader_eval_20.json --out-md eval_reports\grader_eval_20.md
+python scripts\prepare_e2e_benchmark.py --out data\evaluation\legal_qa_eval_e2e_40.jsonl
+python scripts\run_e2e_eval.py --dataset data\evaluation\legal_qa_eval_e2e_40.jsonl --out eval_reports\e2e_predictions_40.jsonl --append --skip-existing --limit 5
+python scripts\evaluate_legal_qa.py --dataset data\evaluation\legal_qa_eval_e2e_40.jsonl --predictions eval_reports\e2e_predictions_40.jsonl --component e2e --only-predicted --out-json eval_reports\e2e_40.json --out-md eval_reports\e2e_40.md
 python -m pytest -q
 ```
 

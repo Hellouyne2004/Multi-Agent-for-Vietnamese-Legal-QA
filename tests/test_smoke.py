@@ -69,6 +69,30 @@ def test_api_root_contract():
     assert "timestamp" in response
 
 
+def test_api_response_includes_trace_events():
+    pytest.importorskip("fastapi")
+    pytest.importorskip("loguru")
+    from api.routers.qa import _map_state_to_response
+    from src.graph.runtime_store import record_agent_event
+    from src.graph.state import create_initial_state
+
+    state = create_initial_state("Trace this question")
+    record_agent_event(
+        trace_id=state["trace_id"],
+        agent="router",
+        input_summary="question='Trace this question'",
+        output_summary="{'route_action': 'retrieve'}",
+        latency_ms=12,
+    )
+
+    response = _map_state_to_response(state, processing_time=25)
+
+    assert response.trace_id == state["trace_id"]
+    assert response.agent_events
+    assert response.agent_events[0].agent == "router"
+    assert response.agent_events[0].latency_ms == 12
+
+
 def test_offline_evaluator_scores_retrieval_and_answer():
     module_path = ROOT / "scripts" / "evaluate_legal_qa.py"
     spec = importlib.util.spec_from_file_location("evaluate_legal_qa", module_path)
@@ -179,6 +203,45 @@ def test_eval_e2e_20_subset_schema_is_loadable():
     assert any(row["type"] == "hallucination_trap" for row in rows)
 
 
+def test_eval_e2e_40_benchmark_schema_and_coverage():
+    module_path = ROOT / "scripts" / "evaluate_legal_qa.py"
+    spec = importlib.util.spec_from_file_location("evaluate_legal_qa", module_path)
+    evaluator = importlib.util.module_from_spec(spec)
+    assert spec and spec.loader
+    spec.loader.exec_module(evaluator)
+
+    rows = evaluator.load_jsonl(ROOT / "data" / "evaluation" / "legal_qa_eval_e2e_40.jsonl")
+
+    assert len(rows) == 40
+    assert any(row["category"] == "labor" for row in rows)
+    assert any(row["category"] == "tax" for row in rows)
+    assert any(row["category"] == "cybersecurity" for row in rows)
+    assert any(row["type"] == "table_lookup" for row in rows)
+    assert any(row["type"] == "web_required" and row["requires_web"] for row in rows)
+    assert any(row["answer_policy"] == "unsafe_refusal" for row in rows)
+    assert any(row["answer_policy"] == "unsupported_refusal" for row in rows)
+    for row in rows:
+        assert row["id"]
+        assert row["question"]
+        assert row["expected"]["expected_intent"]
+        assert isinstance(row["expected"]["expected_facts"], list)
+        assert isinstance(row["expected"]["forbidden_facts"], list)
+
+
+def test_prepare_e2e_benchmark_builds_expected_mix():
+    module_path = ROOT / "scripts" / "prepare_e2e_benchmark.py"
+    spec = importlib.util.spec_from_file_location("prepare_e2e_benchmark", module_path)
+    builder = importlib.util.module_from_spec(spec)
+    assert spec and spec.loader
+    spec.loader.exec_module(builder)
+
+    rows = builder.build_benchmark(ROOT / "data" / "evaluation" / "legal_qa_eval_100.jsonl")
+
+    assert len(rows) == 40
+    assert rows[-1]["id"] == "web_latest_tax_change_102"
+    assert sum(1 for row in rows if row.get("requires_web")) == 2
+
+
 def test_offline_evaluator_scores_router_refusal_and_quality_gates():
     module_path = ROOT / "scripts" / "evaluate_legal_qa.py"
     spec = importlib.util.spec_from_file_location("evaluate_legal_qa", module_path)
@@ -251,6 +314,48 @@ def test_offline_evaluator_scores_router_refusal_and_quality_gates():
     assert any(gate["gate"] == "retrieval_context_fact_coverage_at_k" and gate["status"] == "PASS" for gate in gates)
 
 
+def test_offline_evaluator_scores_route_action_and_hallucination_metrics():
+    module_path = ROOT / "scripts" / "evaluate_legal_qa.py"
+    spec = importlib.util.spec_from_file_location("evaluate_legal_qa", module_path)
+    evaluator = importlib.util.module_from_spec(spec)
+    assert spec and spec.loader
+    spec.loader.exec_module(evaluator)
+
+    cases = [
+        {
+            "id": "case_web",
+            "requires_web": True,
+            "answer_policy": "grounded_answer",
+            "expected": {
+                "doc_id": None,
+                "expected_intent": "legal_query",
+                "expected_route_action": "web_required",
+                "expected_facts": ["muc luong toi thieu vung"],
+                "forbidden_facts": [],
+            },
+        }
+    ]
+    predictions = {
+        "case_web": {
+            "intent": "legal_query",
+            "route_action": "web_required",
+            "answer": "Can kiem tra muc luong toi thieu vung moi nhat tu nguon hien hanh.",
+            "citations": [],
+            "web_results": [{"title": "source", "content": "muc luong toi thieu vung", "url": "https://example.test"}],
+            "hallucination_verdict": "pass",
+            "hallucination_retry_count": 1,
+        }
+    }
+
+    router = evaluator.score_router(cases, predictions)
+    answer = evaluator.score_answers(cases, predictions)
+
+    assert router["route_action_accuracy"] == 1.0
+    assert router["web_required_recall"] == 1.0
+    assert answer["hallucination_pass_rate"] == 1.0
+    assert answer["avg_hallucination_retry_count"] == 1.0
+
+
 def test_offline_evaluator_prediction_coverage_only_predicted():
     module_path = ROOT / "scripts" / "evaluate_legal_qa.py"
     spec = importlib.util.spec_from_file_location("evaluate_legal_qa", module_path)
@@ -302,7 +407,7 @@ def test_offline_evaluator_tracks_quota_without_answer_quality_penalty():
 
 
 def test_new_eval_cli_modules_import_without_runtime_services():
-    for script_name in ["run_e2e_eval.py", "run_retrieval_eval.py", "compare_ablation_runs.py"]:
+    for script_name in ["run_e2e_eval.py", "run_retrieval_eval.py", "compare_ablation_runs.py", "prepare_e2e_benchmark.py"]:
         module_path = ROOT / "scripts" / script_name
         spec = importlib.util.spec_from_file_location(script_name.replace(".py", ""), module_path)
         module = importlib.util.module_from_spec(spec)

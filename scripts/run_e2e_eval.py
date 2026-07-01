@@ -17,7 +17,7 @@ from typing import Any
 
 
 ROOT = Path(__file__).resolve().parents[1]
-DEFAULT_DATASET = ROOT / "data" / "evaluation" / "legal_qa_eval_100.jsonl"
+DEFAULT_DATASET = ROOT / "data" / "evaluation" / "legal_qa_eval_e2e_40.jsonl"
 DEFAULT_OUT = ROOT / "eval_reports" / "e2e_predictions.jsonl"
 QUOTA_ERROR_TERMS = (
     "RESOURCE_EXHAUSTED",
@@ -56,8 +56,11 @@ def compact_document(doc: dict[str, Any], max_content_chars: int) -> dict[str, A
 
 def compact_event(event: dict[str, Any]) -> dict[str, Any]:
     return {
+        "trace_id": event.get("trace_id"),
         "step": event.get("step"),
         "agent": event.get("agent"),
+        "input_summary": event.get("input_summary"),
+        "output_summary": event.get("output_summary"),
         "chunk_ids": event.get("chunk_ids", []),
         "scores": event.get("scores", {}),
         "latency_ms": event.get("latency_ms", 0),
@@ -132,6 +135,7 @@ async def run_case(case: dict[str, Any], *, max_content_chars: int) -> dict[str,
         answer = final_state.get("answer") or "Xin lỗi, tôi không thể tìm thấy câu trả lời phù hợp."
         return {
             "id": case["id"],
+            "trace_id": final_state.get("trace_id") or final_state.get("request_id"),
             "question": case["question"],
             "answer": answer,
             "citations": citations,
@@ -149,6 +153,7 @@ async def run_case(case: dict[str, Any], *, max_content_chars: int) -> dict[str,
             "grader_score": final_state.get("grader_score"),
             "hallucination_verdict": final_state.get("hallucination_verdict"),
             "hallucinations": final_state.get("hallucinations"),
+            "hallucination_retry_count": final_state.get("hallucination_retry_count", 0),
             "generation_attempt": final_state.get("generation_attempt", 0),
             "retrieval_ms": latency_for(events, {"retriever"}),
             "answer_ms": latency_for(events, {"generator", "hallucination_grader"}),
@@ -160,6 +165,7 @@ async def run_case(case: dict[str, Any], *, max_content_chars: int) -> dict[str,
         processing_time_ms = int((time.perf_counter() - started) * 1000)
         return {
             "id": case.get("id", ""),
+            "trace_id": initial_state.get("trace_id") or initial_state.get("request_id"),
             "question": case.get("question", ""),
             "answer": "",
             "citations": [],
@@ -168,6 +174,7 @@ async def run_case(case: dict[str, Any], *, max_content_chars: int) -> dict[str,
             "intent": None,
             "grader_verdict": None,
             "hallucination_verdict": None,
+            "hallucination_retry_count": 0,
             "generation_attempt": 0,
             "retrieval_ms": None,
             "answer_ms": None,

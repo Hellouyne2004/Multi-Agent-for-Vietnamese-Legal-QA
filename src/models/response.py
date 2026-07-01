@@ -3,7 +3,7 @@ src/models/response.py
 Pydantic models for API responses.
 """
 from pydantic import BaseModel, Field
-from typing import List, Optional, Any
+from typing import Any, Dict, List, Optional
 
 
 class Citation(BaseModel):
@@ -21,12 +21,28 @@ class WebResult(BaseModel):
     source_type: str = "web"
 
 
+class AgentEvent(BaseModel):
+    """Compact trace event for one graph node execution."""
+    trace_id: Optional[str] = None
+    step: Optional[int] = None
+    agent: Optional[str] = None
+    input_summary: Optional[str] = None
+    output_summary: Optional[str] = None
+    chunk_ids: List[str] = Field(default_factory=list)
+    scores: Dict[str, float] = Field(default_factory=dict)
+    latency_ms: int = 0
+    error: Optional[str] = None
+    created_at: Optional[str] = None
+
+
 class AnswerResponse(BaseModel):
     """Response model for a legal question."""
+    trace_id: Optional[str] = None
     question: str
     answer: str
-    citations: List[Citation] = []
-    web_results: List[WebResult] = []
+    citations: List[Citation] = Field(default_factory=list)
+    web_results: List[WebResult] = Field(default_factory=list)
+    agent_events: List[AgentEvent] = Field(default_factory=list)
     confidence: float = 0.0
     intent: Optional[str] = None
     intent_confidence: Optional[float] = None

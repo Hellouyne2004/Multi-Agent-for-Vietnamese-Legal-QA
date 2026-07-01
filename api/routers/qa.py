@@ -5,16 +5,14 @@ Router for legal QA endpoints, including streaming support.
 import asyncio
 import json
 import time
-from typing import AsyncGenerator
-
 from fastapi import APIRouter, HTTPException
 from sse_starlette.sse import EventSourceResponse
 
 from src.graph.graph import app as graph_app
-from src.graph.runtime_store import get_citations, get_web_results
+from src.graph.runtime_store import get_agent_events, get_citations, get_web_results
 from src.graph.state import create_initial_state
 from src.models.request import QuestionRequest
-from src.models.response import AnswerResponse, StreamEvent, Citation, WebResult
+from src.models.response import AgentEvent, AnswerResponse, Citation, WebResult
 from src.utils.logger import logger
 
 router = APIRouter(prefix="/qa", tags=["QA"])
@@ -69,6 +67,18 @@ async def stream_question(question: str = "", user_id: str = ""):
         send_timeout=300,
         ping=20
     )
+
+
+@router.get("/trace/{trace_id}")
+async def get_trace(trace_id: str):
+    """Return compact per-agent trace events for a recent request."""
+    events = get_agent_events(trace_id)
+    if not events:
+        raise HTTPException(status_code=404, detail="Trace not found or expired")
+    return {
+        "trace_id": trace_id,
+        "agent_events": events,
+    }
 
 
 async def generate_graph_events(question: str, user_id: str):
@@ -154,6 +164,7 @@ def _map_state_to_response(state: dict, processing_time: int) -> AnswerResponse:
         confidence = 0.0
     
     return AnswerResponse(
+        trace_id=state.get("trace_id") or state.get("request_id"),
         question=state.get("question", ""),
         answer=answer,
         citations=[
@@ -164,6 +175,7 @@ def _map_state_to_response(state: dict, processing_time: int) -> AnswerResponse:
             WebResult(**{key: w.get(key) for key in ("url", "title", "content", "source_type") if key in w})
             for w in get_web_results(state)
         ],
+        agent_events=[AgentEvent(**event) for event in get_agent_events(state)],
         confidence=confidence,
         intent=state.get("intent"),
         intent_confidence=state.get("intent_confidence"),

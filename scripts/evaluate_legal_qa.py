@@ -40,6 +40,7 @@ QUALITY_GATES = {
     "corpus_missing_metadata_total": ("lte", 0),
     "corpus_chunk_avg_chars": ("between", (500, 1200)),
     "router_intent_accuracy": ("gte", 0.90),
+    "router_route_action_accuracy": ("gte", 0.90),
     "router_refusal_accuracy": ("gte", 0.90),
     "retrieval_doc_hit_at_k": ("gte", 0.95),
     "retrieval_context_fact_coverage_at_k": ("gte", 0.80),
@@ -52,6 +53,7 @@ QUALITY_GATES = {
     "generation_citation_url_valid": ("gte", 0.95),
     "e2e_grounded_answer_rate": ("gte", 0.80),
     "e2e_unsupported_claim_rate": ("lte", 0.08),
+    "e2e_hallucination_pass_rate": ("gte", 0.90),
     "reliability_error_rate": ("lte", 0.05),
 }
 
@@ -248,6 +250,29 @@ def expected_grader_verdict_for_case(case: dict[str, Any]) -> str | None:
     return None
 
 
+def expected_route_action_for_case(case: dict[str, Any]) -> str | None:
+    expected = case.get("expected", {})
+    explicit = expected.get("expected_route_action") or case.get("expected_route_action")
+    if explicit:
+        return explicit
+    policy = case.get("answer_policy") or expected.get("answer_policy")
+    category = case.get("category", "")
+    case_type = case.get("type", "")
+    if case.get("requires_web") is True:
+        return "web_required"
+    if policy == "unsafe_refusal" or category == "unsafe":
+        return "refuse_unsafe"
+    if policy == "unsupported_refusal" or category == "unsupported":
+        return "refuse_unsupported"
+    if case_type == "general_chat":
+        return "respond_chat"
+    if policy == "refuse_or_redirect" or category == "out_of_scope":
+        return "redirect_out_of_scope"
+    if expected.get("doc_id") or policy == "grounded_answer":
+        return "retrieve"
+    return None
+
+
 def expected_refusal(case: dict[str, Any]) -> bool:
     expected = case.get("expected", {})
     policy = case.get("answer_policy") or expected.get("answer_policy")
@@ -296,24 +321,44 @@ def score_router(cases: list[dict[str, Any]], predictions: dict[str, dict[str, A
     scored: list[dict[str, Any]] = []
     for case in cases:
         expected_intent = expected_intent_for_case(case)
-        if not expected_intent:
+        expected_action = expected_route_action_for_case(case)
+        if not expected_intent and not expected_action:
             continue
         prediction = predictions.get(case["id"], {})
         actual_intent = prediction.get("intent")
-        is_correct = actual_intent == expected_intent
+        actual_action = prediction.get("route_action")
+        intent_correct = actual_intent == expected_intent if expected_intent else None
+        action_correct = (
+            actual_action == expected_action
+            if expected_action and actual_action is not None
+            else None
+        )
+        failure_reasons: list[str] = []
+        if intent_correct is False:
+            failure_reasons.append("wrong_intent")
+        if action_correct is False:
+            failure_reasons.append("wrong_route_action")
         scored.append(
             {
                 "id": case["id"],
                 "expected_intent": expected_intent,
                 "actual_intent": actual_intent,
-                "correct": is_correct,
+                "correct": intent_correct,
+                "expected_route_action": expected_action,
+                "actual_route_action": actual_action,
+                "route_action_correct": action_correct,
                 "is_refusal_case": expected_intent in {"out_of_scope", "general_chat"},
-                "failure_reasons": [] if is_correct else ["wrong_intent"],
+                "is_web_required_case": expected_action == "web_required",
+                "is_unsafe_case": expected_action == "refuse_unsafe",
+                "failure_reasons": failure_reasons,
             }
         )
     return {
         "cases": len(scored),
         "intent_accuracy": bool_mean(scored, "correct"),
+        "route_action_accuracy": bool_mean(scored, "route_action_correct"),
+        "web_required_recall": bool_mean([row for row in scored if row["is_web_required_case"]], "route_action_correct"),
+        "unsafe_refusal_recall": bool_mean([row for row in scored if row["is_unsafe_case"]], "route_action_correct"),
         "refusal_accuracy": bool_mean([row for row in scored if row["is_refusal_case"]], "correct"),
         "results": scored,
     }
@@ -484,6 +529,8 @@ def score_answers(cases: list[dict[str, Any]], predictions: dict[str, dict[str, 
                     "answer_ms": prediction.get("answer_ms"),
                     "processing_time_ms": prediction.get("processing_time_ms"),
                     "generation_attempt": prediction.get("generation_attempt"),
+                    "hallucination_pass": None,
+                    "hallucination_retry_count": prediction.get("hallucination_retry_count"),
                     "web_used": bool(prediction.get("web_results") or prediction.get("web_result_ids")),
                     "error": error_category != "quota_or_rate_limit",
                     "quota_error": error_category == "quota_or_rate_limit",
@@ -527,6 +574,12 @@ def score_answers(cases: list[dict[str, Any]], predictions: dict[str, dict[str, 
 
         refusal_case = expected_refusal(case)
         refusal_ok = is_refusal_text(answer) if refusal_case else None
+        hallucination_verdict = prediction.get("hallucination_verdict")
+        hallucination_pass = (
+            hallucination_verdict == "pass"
+            if hallucination_verdict in {"pass", "fail"}
+            else None
+        )
         fact_coverage = len(covered) / len(expected_facts) if expected_facts else None
         forbidden_ok = not forbidden_found
         display_citation_valid = bool(source_ids) if needs_citation else True
@@ -570,6 +623,8 @@ def score_answers(cases: list[dict[str, Any]], predictions: dict[str, dict[str, 
                 "answer_ms": prediction.get("answer_ms"),
                 "processing_time_ms": prediction.get("processing_time_ms"),
                 "generation_attempt": prediction.get("generation_attempt"),
+                "hallucination_pass": hallucination_pass,
+                "hallucination_retry_count": prediction.get("hallucination_retry_count"),
                 "web_used": bool(prediction.get("web_results") or prediction.get("web_result_ids")),
                 "error": False,
                 "quota_error": False,
@@ -601,6 +656,8 @@ def score_answers(cases: list[dict[str, Any]], predictions: dict[str, dict[str, 
         "avg_processing_time_ms": float_mean(scored, "processing_time_ms"),
         "p95_processing_time_ms": percentile(processing_latencies, 0.95),
         "avg_generation_attempts": float_mean(scored, "generation_attempt"),
+        "hallucination_pass_rate": bool_mean(scored, "hallucination_pass"),
+        "avg_hallucination_retry_count": float_mean(scored, "hallucination_retry_count"),
         "web_fallback_rate": bool_mean(scored, "web_used"),
         "error_rate": bool_mean(scored, "error"),
         "quota_error_rate": bool_mean(scored, "quota_error"),
@@ -726,6 +783,7 @@ def build_quality_gates(report: dict[str, Any]) -> list[dict[str, Any]]:
         "corpus_missing_metadata_total": corpus.get("missing_metadata_total"),
         "corpus_chunk_avg_chars": corpus.get("chunk_chars_avg"),
         "router_intent_accuracy": router.get("intent_accuracy"),
+        "router_route_action_accuracy": router.get("route_action_accuracy"),
         "router_refusal_accuracy": router.get("refusal_accuracy") or answer.get("refusal_accuracy"),
         "retrieval_doc_hit_at_k": retrieval.get("doc_hit_at_k", retrieval.get("doc_hit_at_5")),
         "retrieval_context_fact_coverage_at_k": retrieval.get("context_fact_coverage_at_k"),
@@ -738,6 +796,7 @@ def build_quality_gates(report: dict[str, Any]) -> list[dict[str, Any]]:
         "generation_citation_url_valid": answer.get("citation_url_valid", answer.get("source_mapping_valid")),
         "e2e_grounded_answer_rate": answer.get("grounded_answer_rate"),
         "e2e_unsupported_claim_rate": answer.get("unsupported_claim_rate"),
+        "e2e_hallucination_pass_rate": answer.get("hallucination_pass_rate"),
         "reliability_error_rate": answer.get("error_rate"),
     }
     gates: list[dict[str, Any]] = []
@@ -1055,6 +1114,9 @@ def write_report(report: dict[str, Any], out_json: Path, out_md: Path) -> None:
                 "| --- | ---: |",
                 f"| Router cases | {router.get('cases', 'n/a')} |",
                 f"| Intent accuracy | {fmt_percent(router.get('intent_accuracy'))} |",
+                f"| Route-action accuracy | {fmt_percent(router.get('route_action_accuracy'))} |",
+                f"| Web-required recall | {fmt_percent(router.get('web_required_recall'))} |",
+                f"| Unsafe refusal recall | {fmt_percent(router.get('unsafe_refusal_recall'))} |",
                 f"| Refusal/out-of-scope accuracy | {fmt_percent(router.get('refusal_accuracy'))} |",
                 f"| Grader accuracy | {fmt_percent(report.get('grader_summary', {}).get('grader_accuracy'))} |",
                 "",
@@ -1110,6 +1172,8 @@ def write_report(report: dict[str, Any], out_json: Path, out_md: Path) -> None:
             f"| Avg processing latency | {fmt_number(answer.get('avg_processing_time_ms'))} ms |",
             f"| P95 processing latency | {fmt_number(answer.get('p95_processing_time_ms'))} ms |",
             f"| Avg generation attempts | {fmt_number(answer.get('avg_generation_attempts'))} |",
+            f"| Hallucination pass rate | {fmt_percent(answer.get('hallucination_pass_rate'))} |",
+            f"| Avg hallucination retries | {fmt_number(answer.get('avg_hallucination_retry_count'))} |",
             "",
         ]
     )
@@ -1188,10 +1252,11 @@ def write_report(report: dict[str, Any], out_json: Path, out_md: Path) -> None:
             "",
             "```bash",
             "python scripts/evaluate_legal_qa.py --dataset data/evaluation/legal_qa_eval_100.jsonl",
+            "python scripts/prepare_e2e_benchmark.py --out data/evaluation/legal_qa_eval_e2e_40.jsonl",
             "python scripts/run_retrieval_eval.py --dataset data/evaluation/legal_qa_eval_100.jsonl --out eval_reports/retrieval_predictions.jsonl",
             "python scripts/evaluate_legal_qa.py --dataset data/evaluation/legal_qa_eval_100.jsonl --predictions eval_reports/retrieval_predictions.jsonl --component retrieval --out-json eval_reports/retrieval_100.json --out-md eval_reports/retrieval_100.md",
-            "python scripts/run_e2e_eval.py --dataset data/evaluation/legal_qa_eval_e2e_20.jsonl --out eval_reports/e2e_predictions_20.jsonl --skip-existing",
-            "python scripts/evaluate_legal_qa.py --dataset data/evaluation/legal_qa_eval_e2e_20.jsonl --predictions eval_reports/e2e_predictions_20.jsonl --component e2e --only-predicted --out-json eval_reports/e2e_20.json --out-md eval_reports/e2e_20.md",
+            "python scripts/run_e2e_eval.py --dataset data/evaluation/legal_qa_eval_e2e_40.jsonl --out eval_reports/e2e_predictions_40.jsonl --skip-existing",
+            "python scripts/evaluate_legal_qa.py --dataset data/evaluation/legal_qa_eval_e2e_40.jsonl --predictions eval_reports/e2e_predictions_40.jsonl --component e2e --only-predicted --out-json eval_reports/e2e_40.json --out-md eval_reports/e2e_40.md",
             "python scripts/compare_ablation_runs.py --dataset data/evaluation/legal_qa_eval_100.jsonl --run dense=eval_reports/dense_predictions.jsonl --run sparse=eval_reports/sparse_predictions.jsonl --run hybrid=eval_reports/hybrid_predictions.jsonl --run full_graph=eval_reports/e2e_predictions.jsonl",
             "```",
             "",

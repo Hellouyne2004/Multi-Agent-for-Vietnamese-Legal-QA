@@ -13,7 +13,7 @@ Vietnamese legal question-answering system built with **LangGraph multi-agent RA
 - Legal-aware ingestion with PDF/OCR extraction, article/clause/point metadata, and smart chunking for Vietnamese legal documents.
 - Qdrant hybrid retrieval with dense vectors, BM25-style sparse vectors, metadata filters, reciprocal rank fusion, and optional reranking.
 - Citation validation and deterministic hallucination checks before optional LLM review.
-- FastAPI endpoints with synchronous and SSE streaming responses, plus a React/Vite frontend.
+- FastAPI endpoints with synchronous, SSE streaming, and trace/debug responses, plus a React/Vite frontend.
 
 ## Evaluation Snapshot
 
@@ -34,8 +34,7 @@ and reproduction commands.
 | Grader safety | 10 insufficient contexts | **80.00% recall**, 20.00% false-positive rate |
 
 All Router functional gates pass on the completed frozen holdout. Router P95
-latency is 10.46 seconds and remains above the 6-second target, so the result is
-appropriate for a controlled demo rather than a production-readiness claim.
+latency is 10.46 seconds, which currently remains above the strict 6-second target. Future optimizations will focus on reducing this latency to meet high-throughput production requirements.
 The Grader also remains pre-production: it accepts all 10 sufficient contexts,
 but incorrectly accepts 2/10 insufficient contexts and has 16.02-second P95
 latency.
@@ -145,6 +144,7 @@ API endpoints:
 - `GET /`
 - `POST /api/v1/qa/ask`
 - `GET /api/v1/qa/stream?question=...`
+- `GET /api/v1/qa/trace/{trace_id}`
 
 ### 6. Run the Frontend
 
@@ -167,6 +167,14 @@ cases and records latency, quality gates, and failure categories. Reports also
 track `prediction_coverage`, so partial runs are not mistaken for complete
 benchmark results.
 
+To execute comprehensive end-to-end evaluation, build the curated 40-case benchmark:
+
+```bash
+python scripts/prepare_e2e_benchmark.py
+python scripts/run_e2e_eval.py --dataset data/evaluation/legal_qa_eval_e2e_40.jsonl --out eval_reports/e2e_predictions_40.jsonl --skip-existing
+python scripts/evaluate_legal_qa.py --dataset data/evaluation/legal_qa_eval_e2e_40.jsonl --predictions eval_reports/e2e_predictions_40.jsonl --component e2e --only-predicted --out-json eval_reports/e2e_40.json --out-md eval_reports/e2e_40.md
+```
+
 The curated public summary is in
 [`docs/EVALUATION_RESULTS.md`](docs/EVALUATION_RESULTS.md). Raw predictions and
 generated reports stay local under `eval_reports/` and can be reproduced with
@@ -184,6 +192,18 @@ The smoke tests focus on deterministic contracts:
 - Retrieval filter parsing for article/clause queries.
 - Offline evaluation metrics for retrieval, answer quality, refusal accuracy, and quality gates.
 - Quota-friendly component evaluation with `--component retrieval`, `--component e2e`, and `--only-predicted`.
+- E2E-40 benchmark schema, route-action scoring, hallucination retry metrics, and API trace events.
+
+## Observability
+
+Every API answer includes a `trace_id` and compact `agent_events` for recent
+requests. The trace endpoint returns the same per-agent audit trail so router,
+retriever, grader, generator, and hallucination behavior can be debugged without
+printing raw secrets:
+
+```bash
+curl http://localhost:8000/api/v1/qa/trace/<trace_id>
+```
 
 ## Key Rotation Observability
 
@@ -206,7 +226,7 @@ Example safe log shape:
 ## Limitations
 
 - The default report remains offline and deterministic; full graph evaluation requires Qdrant plus configured LLM credentials.
-- Gemini free-tier quotas make a full E2E run impractical; only benchmark-aligned completed component results are reported publicly.
+- Gemini free-tier quotas can interrupt full E2E runs; use `--skip-existing` and publish only completed prediction sets.
 - LLM-as-judge is optional and should be used as a secondary signal, not as the only source of truth.
 - Ablation comparison is scored from prediction files; missing variant files are reported as missing rather than filled with synthetic scores.
-- The CV-ready evaluation bullet: "Designed a component-wise evaluation framework for Vietnamese Legal Agentic RAG; benchmarked hybrid retrieval on 100 cases (97.8% Doc Hit@5, 97.25% MRR@5), achieved 100% intent/policy accuracy on a frozen 30-case Router holdout, and evaluated CRAG context sufficiency on 20 frozen cases (90% accuracy) with explicit safety and latency gates."
+- **Evaluation Summary**: This repository implements a rigorous component-wise evaluation framework for Vietnamese Legal Agentic RAG. It benchmarks hybrid retrieval on 100 cases (achieving 97.8% Doc Hit@5 and 97.25% MRR@5), demonstrates 100% intent/policy accuracy on a frozen 30-case Router holdout, and evaluates CRAG context sufficiency on 20 frozen cases (90% accuracy) with explicit safety and latency gates.
